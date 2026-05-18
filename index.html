@@ -1,319 +1,269 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-bs-theme="light">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Linktree</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #f8fafc;
-            --text-color: #0f172a;
-            --text-muted: #64748b;
-            --card-bg: #ffffff;
-            --card-hover: #f1f5f9;
-            --accent-color: #6366f1;
-            --whatsapp-color: #25D366;
-            --telegram-color: #0088cc;
-            --border-color: #e2e8f0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Personal Linktree</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/collapse.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      transition: background-color 0.3s ease, color 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 40px 16px;
-        }
+    /* Batasan Lebar Kontainer (Mobile View-first) */
+    .wrapper-container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 40px 12px;
+    }
 
-        .container {
-            width: 100%;
-            max-width: 480px;
-        }
+    /* Label Section Kepala */
+    .section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--bs-secondary-color);
+      margin: 32px 0 12px 4px;
+      font-weight: 700;
+    }
 
-        /* PROFILE SECTION */
-        .profile {
-            text-align: center;
-            margin-bottom: 32px;
-        }
+    /* --- STYLE KONTAK (LINK CARD) --- */
+    .link-card {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--bs-body-color);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid var(--bs-border-color);
+      background-color: var(--bs-body-tertiary-bg);
+      transition: all 0.2s ease;
+    }
 
-        .profile img {
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--accent-color);
-            margin-bottom: 16px;
-        }
+    .link-card:hover,
+    .link-card:active {
+      transform: translateY(-2px);
+      background-color: var(--bs-border-color);
+      color: var(--bs-body-color);
+    }
 
-        .profile h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
+    .link-card svg {
+      width: 24px;
+      height: 24px;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
 
-        .profile p {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
+    /* --- STYLE JUALAN (2 KOLOM GRID) --- */
+    .product-card {
+      border-radius: 14px;
+      border: 1px solid var(--bs-border-color);
+      background-color: var(--bs-body-tertiary-bg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: transform 0.2s;
+    }
 
-        .section-title {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            margin: 28px 0 12px 4px;
-            font-weight: 700;
-        }
+    .product-card:hover {
+      transform: translateY(-2px);
+    }
 
-        /* CONTACTS (SVG ICONS) */
-        .contact-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+    .product-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
 
-        .link-card {
-            background-color: var(--card-bg);
-            display: flex;
-            align-items: center;
-            padding: 14px 16px;
-            border-radius: 14px;
-            text-decoration: none;
-            color: var(--text-color);
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-            border: 1px solid var(--border-color);
-        }
+    .product-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      height: 2.6em;
+      /* Mengunci tinggi nama barang agar rapi sejajar */
+    }
 
-        .link-card:active, .link-card:hover {
-            background-color: var(--card-hover);
-            transform: translateY(-1px);
-        }
+    .product-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #6366f1;
+    }
 
-        .link-card svg {
-            width: 22px;
-            height: 22px;
-            margin-right: 14px;
-            flex-shrink: 0;
-        }
+    [data-bs-theme="dark"] .product-price {
+      color: #818cf8;
+    }
 
-        .link-card .text {
-            flex-grow: 1;
-        }
+    .cta-button {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 8px;
+      border-radius: 8px;
+    }
 
-        .link-card .arrow {
-            color: #94a3b8;
-            font-size: 0.75rem;
-        }
+    /* --- STYLE WEBAPPS (FULL CARD) --- */
+    .webapp-card {
+      background-color: var(--bs-body-tertiary-bg);
+      border-radius: 14px;
+      border: 1px solid var(--bs-border-color);
+      padding: 16px;
+      text-decoration: none;
+      color: var(--bs-body-color);
+      display: block;
+      transition: all 0.2s ease;
+    }
 
-        /* PRODUCTS (CARD VIEW WITH IMAGE & CTA) */
-        .product-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+    .webapp-card:hover {
+      border-color: #6366f1;
+      color: var(--bs-body-color);
+    }
 
-        .product-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            background-color: #e2e8f0;
-        }
-
-        .product-info {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .product-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-
-        .product-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-            margin-bottom: 4px;
-        }
-
-        .product-price {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--accent-color);
-            margin-bottom: 4px;
-        }
-
-        .cta-button {
-            display: block;
-            background-color: var(--text-color);
-            color: #ffffff;
-            text-align: center;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-
-        .cta-button:active, .cta-button:hover {
-            opacity: 0.9;
-        }
-
-        /* WEBAPPS SECTION */
-        .webapp-card {
-            background-color: var(--card-bg);
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            text-decoration: none;
-            color: var(--text-color);
-            display: block;
-            transition: all 0.2s ease;
-        }
-
-        .webapp-card:hover, .webapp-card:active {
-            border-color: var(--accent-color);
-            background-color: #fdfdfd;
-        }
-
-        .webapp-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
-
-        .webapp-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-
-        .webapp-badge {
-            font-size: 0.7rem;
-            background-color: #e0e7ff;
-            color: var(--accent-color);
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        .webapp-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        /* FOOTER */
-        footer {
-            text-align: center;
-            margin-top: 48px;
-            font-size: 0.8rem;
-            color: #94a3b8;
-        }
-    </style>
+    /* --- FLOATING THEME SWITCHER --- */
+    .theme-switch-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1050;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+    }
+  </style>
 </head>
+
 <body>
 
-    <div class="container">
-        
-        <div class="profile">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Foto Profil">
-            <h1>Nama / Brand Anda</h1>
-            <p>Welcome to my customize link space. Jelajahi kontak, produk jualan, dan web apps buatan saya di bawah ini.</p>
-        </div>
+  <div class="theme-switch-btn btn btn-dark" id="themeToggler" onclick="toggleTheme()">
+    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-moon-stars-fill" viewBox="0 0 16 16">
+      <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.306 7.277.793 0 1.571-.124 2.305-.357a.77.77 0 0 1 .916.533A8.25 8.25 0 0 1 8 16.002c-4.573 0-8.25-3.665-8.25-8.247C0 3.738 3.321.135 6 .278z" />
+      <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.73 1.73 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.73 1.73 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.73 1.73 0 0 0 1.097-1.097zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z" />
+    </svg>
+  </div>
 
-        <div class="section-title">Kontak Saya</div>
-        <div class="contact-list">
-            <a href="https://wa.me/628123456789" class="link-card" target="_blank">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.004 2C6.48 2 2 6.48 2 12.004c0 1.848.502 3.578 1.378 5.067L2 22l5.093-1.336A9.957 9.957 0 0012.004 22c5.523 0 10.004-4.48 10.004-10.004C22.008 6.48 17.527 2 12.004 2zm5.727 14.126c-.244.69-1.218 1.253-1.688 1.294-.47.04-1.054.195-3.32-.743-2.903-1.2-4.733-4.14-4.88-4.333-.146-.193-1.185-1.574-1.185-3.003 0-1.43.748-2.133 1.014-2.413.267-.28.583-.348.777-.348.195 0 .388.003.557.01.176.008.412-.066.643.491.24.577.818 1.996.889 2.14.07.145.118.313.02.507-.097.193-.146.313-.292.483-.145.17-.306.38-.437.51-.146.146-.3.305-.129.598.17.292.757 1.246 1.624 2.016.945.839 1.743 1.096 1.987 1.218.243.122.388.102.533-.066.145-.17.625-.727.794-.975.17-.247.339-.207.57-.122.23.085 1.464.69 1.714.815.25.125.417.186.478.292.06.105.06.61-.184 1.301z" fill="var(--whatsapp-color)"/>
-                </svg>
-                <span class="text">WhatsApp</span>
-                <span class="arrow">▶</span>
-            </a>
+  <div class="wrapper-container">
 
-            <a href="https://t.me/username" class="link-card" target="_blank">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.12.82-.53 3.32-.74 4.46-.09.48-.27.64-.44.66-.37.03-.65-.25-.95-.45-.48-.31-.75-.5-.12-1.15.35-.35 3.12-2.87 3.18-3.13.01-.03.01-.15-.06-.21-.07-.06-.17-.04-.25-.02-.11.02-1.83 1.16-5.16 3.42-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.77-.25-1.39-.39-1.34-.83.03-.23.35-.46.97-.71 3.8-1.65 6.34-2.74 7.61-3.26 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.11.17.26.18.37 0 .08.01.24 0 .38z" fill="var(--telegram-color)"/>
-                </svg>
-                <span class="text">Telegram</span>
-                <span class="arrow">▶</span>
-            </a>
-        </div>
+    <div class="text-center mb-4">
+      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Profil" class="rounded-circle border border-3 mb-3" style="width: 96px; height: 96px; object-fit: cover; border-color: #6366f1 !important;">
+      <h1 class="h5 fw-bold mb-1">Nama / Brand Anda</h1>
+      <p class="small text-muted px-3">Welcome to my customize space. Jelajahi kontak resmi, jualan terlaris, dan portofolio webapps milik saya.</p>
+    </div>
 
+    <div class="section-title">Kontak Saya</div>
+    <div class="d-flex flex-column gap-2 mb-4">
+      <a href="https://wa.me/628123456789" class="link-card" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12.004 2C6.48 2 2 6.48 2 12.004c0 1.848.502 3.578 1.378 5.067L2 22l5.093-1.336A9.957 9.957 0 0012.004 22c5.523 0 10.004-4.48 10.004-10.004C22.008 6.48 17.527 2 12.004 2zm5.727 14.126c-.244.69-1.218 1.253-1.688 1.294-.47.04-1.054.195-3.32-.743-2.903-1.2-4.733-4.14-4.88-4.333-.146-.193-1.185-1.574-1.185-3.003 0-1.43.748-2.133 1.014-2.413.267-.28.583-.348.777-.348.195 0 .388.003.557.01.176.008.412-.066.643.491.24.577.818 1.996.889 2.14.07.145.118.313.02.507-.097.193-.146.313-.292.483-.145.17-.306.38-.437.51-.146.146-.3.305-.129.598.17.292.757 1.246 1.624 2.016.945.839 1.743 1.096 1.987 1.218.243.122.388.102.533-.066.145-.17.625-.727.794-.975.17-.247.339-.207.57-.122.23.085 1.464.69 1.714.815.25.125.417.186.478.292.06.105.06.61-.184 1.301z" fill="#25D366" />
+        </svg>
+        <span class="flex-grow-1">WhatsApp</span>
+        <span class="small opacity-50">▶</span>
+      </a>
 
-        <div class="section-title">Jualan Saya</div>
-        <div class="product-grid">
-            
-            <div class="product-card">
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" alt="Produk 1" class="product-img">
-                <div class="product-info">
-                    <div class="product-title">Nama Produk Jualan 1</div>
-                    <div class="product-desc">Deskripsi singkat produk jualan Anda di sini, jelaskan keunggulan atau variasi produk secara menarik.</div>
-                    <div class="product-price">Rp 150.000</div>
-                    <a href="https://wa.me/628123456789?text=Halo,%20saya%20mau%20order%20Produk%201" class="cta-button" target="_blank">Order Sekarang</a>
-                </div>
+      <a href="https://t.me/username" class="link-card" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.12.82-.53 3.32-.74 4.46-.09.48-.27.64-.44.66-.37.03-.65-.25-.95-.45-.48-.31-.75-.5-.12-1.15.35-.35 3.12-2.87 3.18-3.13.01-.03.01-.15-.06-.21-.07-.06-.17-.04-.25-.02-.11.02-1.83 1.16-5.16 3.42-.49.34-.93.5-1.33.49-.44-.01-1.29-.25-1.92-.45-.77-.25-1.39-.39-1.34-.83.03-.23.35-.46.97-.71 3.8-1.65 6.34-2.74 7.61-3.26 3.61-1.48 4.36-1.74 4.85-1.75.11 0 .35.03.5.16.13.11.17.26.18.37 0 .08.01.24 0 .38z" fill="#0088cc" />
+        </svg>
+        <span class="flex-grow-1">Telegram</span>
+        <span class="small opacity-50">▶</span>
+      </a>
+    </div>
+
+    <div class="section-title">Jualan Saya</div>
+    <div class="row g-2 mb-4">
+
+      <div class="col-6">
+        <div class="product-card">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=250" alt="Produk 1" class="product-img">
+          <div class="p-2 d-flex flex-column gap-1 flex-grow-1 justify-content-between">
+            <div>
+              <div class="product-title">Smartwatch Minimalist Edition Series</div>
+              <div class="product-price mt-1">Rp 150.000</div>
             </div>
-
-            <div class="product-card">
-                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Produk 2" class="product-img">
-                <div class="product-info">
-                    <div class="product-title">Nama Produk Jualan 2</div>
-                    <div class="product-desc">Deskripsi produk jualan kedua Anda di sini. Sangat pas untuk mobile view yang bersih dan modern.</div>
-                    <div class="product-price">Rp 299.000</div>
-                    <a href="https://wa.me/628123456789?text=Halo,%20saya%20mau%20order%20Produk%202" class="cta-button" target="_blank">Order Sekarang</a>
-                </div>
-            </div>
-
+            <a href="https://wa.me/628123456789?text=Halo,%20saya%20mau%20order%20Produk%201" class="btn btn-primary cta-button w-100 mt-2" target="_blank">Order</a>
+          </div>
         </div>
+      </div>
 
-
-        <div class="section-title">Web-Apps Buatan Ku</div>
-        
-        <a href="https://moreid.github.io/scammervault/" class="webapp-card" target="_blank">
-            <div class="webapp-header">
-                <div class="webapp-title">ScammerVault</div>
-                <div class="webapp-badge">GitHub Pages</div>
+      <div class="col-6">
+        <div class="product-card">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=250" alt="Produk 2" class="product-img">
+          <div class="p-2 d-flex flex-column gap-1 flex-grow-1 justify-content-between">
+            <div>
+              <div class="product-title">Running Shoes Sporty Red Premium</div>
+              <div class="product-price mt-1">Rp 299.000</div>
             </div>
-            <div class="webapp-desc">Aplikasi cek musang dan catat untuk melacak data penipuan dengan mudah dan cepat.</div>
-        </a>
-
-
-        <footer>
-            © 2026 NamaAnda. Powered by GitHub.
-        </footer>
+            <a href="https://wa.me/628123456789?text=Halo,%20saya%20mau%20order%20Produk%202" class="btn btn-primary cta-button w-100 mt-2" target="_blank">Order</a>
+          </div>
+        </div>
+      </div>
 
     </div>
 
+    <div class="section-title">Web-Apps Buatan Ku</div>
+    <a href="https://moreid.github.io/scammervault/" class="webapp-card mb-4" target="_blank">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <div class="fw-bold" style="font-size: 0.95rem;">ScammerVault</div>
+        <span class="badge text-bg-primary rounded-pill" style="font-size: 0.65rem;">Live</span>
+      </div>
+      <div class="small text-secondary" style="line-height: 1.4;">Aplikasi cek musang dan catat untuk melacak serta mendokumentasikan rekam jejak digital penipuan.</div>
+    </a>
+
+    <footer class="text-center mt-5 small opacity-50">
+      © 2026 NamaAnda. Powered by GitHub.
+    </footer>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Otomatis deteksi preferensi sistem HP (Dark/Light mode internal)
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-bs-theme', 'dark');
+      updateTogglerIcon('dark');
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+      document.documentElement.setAttribute('data-bs-theme', newTheme);
+      updateTogglerIcon(newTheme);
+    }
+
+    function updateTogglerIcon(theme) {
+      const btn = document.getElementById('themeToggler');
+      const icon = document.getElementById('themeIcon');
+      if (theme === 'dark') {
+        btn.className = "theme-switch-btn btn btn-light";
+        // Ganti jadi icon Matahari
+        icon.innerHTML = `<path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 1 .5-.5zM0 8a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 8zm13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zM2.343 2.343a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 1 1-.707.707L2.343 3.05a.5.5 0 0 1 0-.707zm10.932 10.932a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 0 1-.707.707l-1.414-1.414a.5.5 0 0 1 0-.707zm1.414-10.932a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 1 1-.707-.707L12.93 2.343a.5.5 0 0 1 .707 0zm-10.932 10.932a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0z"/>`;
+      } else {
+        btn.className = "theme-switch-btn btn btn-dark";
+        // Ganti kembali ke icon Bulan
+        icon.innerHTML = `<path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.306 7.277.793 0 1.571-.124 2.305-.357a.77.77 0 0 1 .916.533A8.25 8.25 0 0 1 8 16.002c-4.573 0-8.25-3.665-8.25-8.247C0 3.738 3.321.135 6 .278z"/><path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.73 1.73 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.73 1.73 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.73 1.73 0 0 0 1.097-1.097zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>`;
+      }
+    }
+  </script>
 </body>
+
 </html>
