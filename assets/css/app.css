@@ -350,3 +350,25 @@ body {
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
+
+/* --- AMAN & CLEAN FEEDBACK COMPONENT --- */
+.feedback-box {
+    background-color: var(--bs-body-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+.fb-comments-wrapper {
+    width: 100%;
+    background: #ffffff; /* Memastikan widget FB terbaca jelas */
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--bs-border-color);
+}
+
+/* Penyesuaian skema warna otomatis jika dalam mode gelap (Optional) */
+[data-bs-theme="dark"] .fb-comments-wrapper {
+    background: #f8f9fa; /* Menjaga kontras font FB bawaan jika plugin di-render light */
+}

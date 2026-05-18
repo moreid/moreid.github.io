@@ -12,6 +12,8 @@
 </head>
 
 <body>
+  <div id="fb-root"></div>
+  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/id_ID/sdk.js#xfbml=1&version=v17.0"></script>
 
   <div class="theme-switch-btn btn btn-dark" id="themeToggler">
     <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"></svg>
@@ -53,6 +55,9 @@
         </li>
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-pane" type="button" role="tab" aria-controls="payment-pane" aria-selected="false">Payment</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="feedback-tab" data-bs-toggle="tab" data-bs-target="#feedback-pane" type="button" role="tab" aria-controls="feedback-pane" aria-selected="false">Feedback</button>
         </li>
       </ul>
 
@@ -128,6 +133,18 @@
               </div>
             </div>
 
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="feedback-pane" role="tabpanel" aria-labelledby="feedback-tab" tabindex="0">
+          <div class="feedback-box p-3">
+            <div class="payment-subheader mb-2">Testimoni & Komentar Pelanggan</div>
+            <p class="small text-muted mb-3" style="font-size: 0.78rem;">Ulasan langsung dari postingan resmi Facebook Reactmore Digital ID.</p>
+
+            <div class="fb-comments-wrapper">
+              <div class="fb-comments" data-href="https://www.facebook.com/permalink.php?story_fbid=2466084893813384&id=100012356914707" data-width="100%" data-nposts="5" data-colorscheme="light">
+              </div>
+            </div>
           </div>
         </div>
 
