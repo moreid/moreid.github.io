@@ -1,0 +1,233 @@
+/* --- CUSTOM VARIABLE & RESET --- */
+:root {
+    --glass-blur: 8px;
+    --transition-speed: 0.25s;
+
+    /* Light Elegant Theme (Soft Glassy Look) */
+    --profile-glow: rgba(99, 102, 241, 0.15);
+    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
+    --card-shadow-hover: 0 14px 40px rgba(99, 102, 241, 0.08);
+}
+
+[data-bs-theme="dark"] {
+    /* Dark Premium Theme (Deep Slate Tech) */
+    --profile-glow: rgba(129, 140, 248, 0.2);
+    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --card-shadow-hover: 0 14px 40px rgba(129, 140, 248, 0.12);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: -0.01em;
+}
+
+/* Container Wrapper */
+.wrapper-container {
+    width: 100%;
+    max-width: 440px;
+    /* Sedikit diperkecil agar visual mobile lebih padat & elegan */
+    margin: 0 auto;
+    padding: 50px 16px;
+}
+
+/* Profile Section */
+.profile-img-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 18px;
+}
+
+.profile-img-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1abc9c, #56c2ad);
+    z-index: -1;
+    opacity: 0.7;
+}
+
+.profile-img {
+    width: 92px;
+    height: 92px;
+    object-fit: cover;
+    border: 3px solid var(--bs-body-bg);
+}
+
+/* Section Title */
+.section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--bs-secondary-color);
+    margin: 36px 0 14px 6px;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+/* --- ELEGAN LINK CARD (KONTAK) --- */
+.link-card {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: var(--bs-body-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-tertiary-bg);
+    box-shadow: var(--card-shadow);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.link-card:hover {
+    transform: translateY(-3px);
+    background-color: var(--bs-body-bg);
+    border-color: #1abc9c;
+    box-shadow: var(--card-shadow-hover);
+    color: var(--bs-body-color);
+}
+
+.link-card svg {
+    width: 22px;
+    height: 22px;
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+.link-card .arrow-icon {
+    font-size: 0.75rem;
+    transition: transform var(--transition-speed);
+    opacity: 0.4;
+}
+
+.link-card:hover .arrow-icon {
+    transform: translateX(3px);
+    opacity: 1;
+    color: #1abc9c;
+}
+
+/* --- ELEGAN PRODUCT GRID (2 KOLOM) --- */
+.product-card {
+    border-radius: 18px;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-tertiary-bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: var(--card-shadow);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--bs-border-color-translucent);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.product-img {
+    width: 100%;
+    height: 125px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.04);
+}
+
+.product-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--bs-heading-color);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.8em;
+}
+
+.product-price {
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1abc9c, #56c2ad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cta-button {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    background: var(--bs-text-color);
+    color: var(--bs-btn-active-color);
+    transition: background 0.2s;
+}
+
+.cta-button:hover {
+    background: #1abc9c;
+    color: #ffffff;
+}
+
+/* --- ELEGAN WEBAPPS CARD --- */
+.webapp-card {
+    background-color: var(--bs-body-tertiary-bg);
+    border-radius: 18px;
+    border: 1px solid var(--bs-border-color);
+    padding: 18px;
+    text-decoration: none;
+    color: var(--bs-body-color);
+    display: block;
+    box-shadow: var(--card-shadow);
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.webapp-card:hover {
+    transform: translateY(-3px);
+    border-color: #1abc9c;
+    box-shadow: var(--card-shadow-hover);
+    color: var(--bs-body-color);
+}
+
+.webapp-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 5px 10px;
+    background: rgba(168, 85, 247, 0.1) !important;
+    color: #1abc9c !important;
+}
+
+/* --- FLOATING THEME SWITCHER --- */
+.theme-switch-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1050;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    /* Desain kotak melengkung (squircle) modern */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s;
+}
+
+.theme-switch-btn:hover {
+    transform: scale(1.08);
+}
