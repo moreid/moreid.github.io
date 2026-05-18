@@ -231,3 +231,122 @@ body {
 .theme-switch-btn:hover {
     transform: scale(1.08);
 }
+
+/* --- AMAN & CLEAN PAYMENT COMPONENT --- */
+.payment-box {
+    background-color: var(--bs-body-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+}
+
+.payment-badge {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 8px;
+    border-radius: 10px;
+    transition: all var(--transition-speed);
+}
+
+.payment-badge:hover {
+    border-color: #1abc9c;
+    color: #1abc9c;
+    background: var(--bs-body-bg);
+}
+
+/* --- CUSTOM TAB SYSTEM (CLEAN & MODERN) --- */
+.custom-tabs {
+    border-bottom: 2px solid var(--bs-border-color);
+    gap: 10px;
+}
+
+.custom-tabs .nav-link {
+    border: none !important;
+    color: var(--bs-secondary-color);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 8px 16px;
+    background: transparent !important;
+    opacity: 0.6;
+    transition: opacity var(--transition-speed), color var(--transition-speed);
+}
+
+.custom-tabs .nav-link:hover {
+    opacity: 1;
+    color: #1abc9c;
+}
+
+.custom-tabs .nav-link.active {
+    color: #1abc9c !important;
+    opacity: 1;
+    position: relative;
+}
+
+/* Garis bawah penanda tab aktif */
+.custom-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #1abc9c;
+    border-radius: 2px;
+}
+
+/* Detail Komponen Payment Dalam Tab */
+.payment-box {
+    background-color: var(--bs-body-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+}
+
+.payment-subheader {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+    font-weight: 700;
+    margin-bottom: 12px;
+    opacity: 0.7;
+}
+
+.style-bank-badge {
+    font-size: 0.6rem;
+    padding: 4px 6px;
+    letter-spacing: 0.02em;
+}
+
+.text-holder {
+    font-size: 0.7rem;
+    margin-top: 2px;
+}
+
+.copy-btn {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--bs-border-color);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+    background-color: #1abc9c;
+    color: #ffffff;
+    border-color: #1abc9c;
+}
+
+/* Modal Dark-Mode Harmony */
+.modal-content {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
