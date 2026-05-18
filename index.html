@@ -13,7 +13,7 @@
 
 <body>
 
-  <div class="theme-switch-btn btn btn-dark" id="themeToggler" onclick="toggleTheme()">
+  <div class="theme-switch-btn btn btn-dark" id="themeToggler">
     <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"></svg>
   </div>
 
@@ -79,7 +79,7 @@
                 <div class="small fw-bold mt-1" id="seabank_account">901324543940</div>
                 <div class="text-muted text-holder">a.n. Andry Setyoso</div>
               </div>
-              <button class="btn btn-sm btn-light copy-btn" onclick="copyToClipboard('seabank_account', this)">Copy</button>
+              <button class="btn btn-sm btn-light copy-btn js-btn-copy-bank" data-copy-target="seabank_account">Copy</button>
             </div>
 
             <div class="bank-account-item d-flex justify-content-between align-items-center mb-1">
@@ -88,7 +88,7 @@
                 <div class="small fw-bold mt-1" id="allobank_account">085155092922</div>
                 <div class="text-muted text-holder">a.n. Andry Setyoso</div>
               </div>
-              <button class="btn btn-sm btn-light copy-btn" onclick="copyToClipboard('allobank_account', this)">Copy</button>
+              <button class="btn btn-sm btn-light copy-btn js-btn-copy-bank" data-copy-target="allobank_account">Copy</button>
             </div>
 
             <hr class="opacity-10 my-3">
@@ -101,8 +101,8 @@
                 <div class="text-muted text-holder">Maksimal Transfer 999.999 (Bebas Biaya MDR)</div>
               </div>
               <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-light copy-btn" data-bs-toggle="modal" data-bs-target="#qrisModal1">View</button>
-                <button class="btn btn-sm btn-light copy-btn" onclick="copyQrisLink('assets/images/payments/QRIS_MOREPAY_STORE.png', this)">Copy</button>
+                <button class="btn btn-sm btn-light copy-btn js-btn-view-qris" data-bs-toggle="modal" data-bs-target="#dynamicQrisModal" data-qris-title="QRIS | Morepay Store" data-qris-src="assets/images/payments/QRIS_MOREPAY_STORE.png" data-qris-desc="Maksimal Transfer 999.999 (Bebas Biaya MDR)">View</button>
+                <button class="btn btn-sm btn-light copy-btn js-btn-copy-qris" data-qris-src="assets/images/payments/QRIS_MOREPAY_STORE.png">Copy</button>
               </div>
             </div>
 
@@ -112,8 +112,8 @@
                 <div class="text-muted text-holder">Maksimal Transfer 499.999 (Bebas Biaya MDR)</div>
               </div>
               <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-light copy-btn" data-bs-toggle="modal" data-bs-target="#qrisModal2">View</button>
-                <button class="btn btn-sm btn-light copy-btn" onclick="copyQrisLink('assets/images/payments/QRIS_DIGITAL_CORNER.png', this)">Copy</button>
+                <button class="btn btn-sm btn-light copy-btn js-btn-view-qris" data-bs-toggle="modal" data-bs-target="#dynamicQrisModal" data-qris-title="QRIS | Reactmore Digital Corner" data-qris-src="assets/images/payments/QRIS_DIGITAL_CORNER.png" data-qris-desc="Maksimal Transfer 499.999 (Bebas Biaya MDR)">View</button>
+                <button class="btn btn-sm btn-light copy-btn js-btn-copy-qris" data-qris-src="assets/images/payments/QRIS_DIGITAL_CORNER.png">Copy</button>
               </div>
             </div>
 
@@ -123,8 +123,8 @@
                 <div class="text-muted text-holder">Khusus DANA / DANA Non-Premium / BCA</div>
               </div>
               <div class="d-flex gap-1">
-                <button class="btn btn-sm btn-light copy-btn" data-bs-toggle="modal" data-bs-target="#qrisModal3">View</button>
-                <button class="btn btn-sm btn-light copy-btn" onclick="copyQrisLink('assets/images/payments/QRIS_REACTMORE_DIGITAL_STORE.png', this)">Copy</button>
+                <button class="btn btn-sm btn-light copy-btn js-btn-view-qris" data-bs-toggle="modal" data-bs-target="#dynamicQrisModal" data-qris-title="QRIS | DANA ONLY" data-qris-src="assets/images/payments/QRIS_REACTMORE_DIGITAL_STORE.png" data-qris-desc="Khusus DANA / DANA Non-Premium / BCA">View</button>
+                <button class="btn btn-sm btn-light copy-btn js-btn-copy-qris" data-qris-src="assets/images/payments/QRIS_REACTMORE_DIGITAL_STORE.png">Copy</button>
               </div>
             </div>
 
@@ -203,53 +203,24 @@
 
   </div>
 
-  <div class="modal fade" id="qrisModal1" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="dynamicQrisModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm px-4">
       <div class="modal-content border-0 shadow">
         <div class="modal-header border-0 pb-0">
-          <h6 class="modal-title fw-bold">QRIS | Morepay Store</h6>
-          <button type="button" class="btn-close" data-bs-shadow="none" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <img src="assets/images/payments/QRIS_MOREPAY_STORE.png" alt="QRIS Morepay Store" class="img-fluid rounded-3 border">
-          <div class="small text-muted mt-2">Maksimal Transfer 999.999 (Bebas Biaya MDR)</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="qrisModal2" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm px-4">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header border-0 pb-0">
-          <h6 class="modal-title fw-bold">QRIS | Reactmore Digital Corner</h6>
+          <h6 class="modal-title fw-bold" id="dynamicModalTitle">---</h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center">
-          <img src="assets/images/payments/QRIS_DIGITAL_CORNER.png" alt="QRIS Reactmore Digital Corner" class="img-fluid rounded-3 border">
-          <div class="small text-muted mt-2">Maksimal Transfer 499.999 (Bebas Biaya MDR)</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="qrisModal3" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm px-4">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header border-0 pb-0">
-          <h6 class="modal-title fw-bold">QRIS | DANA</h6>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-          <img src="assets/images/payments/QRIS_REACTMORE_DIGITAL_STORE.png" alt="QRIS Dana" class="img-fluid rounded-3 border">
-          <div class="small text-muted mt-2">Khusus DANA / DANA Non-Premium / BCA</div>
+          <img src="" alt="QRIS" id="dynamicModalImg" class="img-fluid rounded-3 border d-none">
+          <div id="modalLoader" class="spinner-border text-success my-3" role="status"></div>
+          <div class="small text-muted mt-2" id="dynamicModalDesc">---</div>
         </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/js/app.js?v=1.0.1"></script>
+  <script src="assets/js/app.js?v=1.1.1"></script>
 </body>
 
 </html>

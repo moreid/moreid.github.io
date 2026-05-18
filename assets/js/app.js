@@ -4,13 +4,12 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Jalankan inisialisasi modul aplikasi
     initThemeManager();
-    initClipboardManager();
+    initInteractionsManager(); // Gabungan clipboard dan modal dinamis
 });
 
 // ==========================================
-// 1. MODULE: THEME MANAGER (MANAJEMEN TEMA)
+// 1. MODULE: THEME MANAGER
 // ==========================================
 function initThemeManager() {
     const themeToggler = document.getElementById('themeToggler');
@@ -19,18 +18,9 @@ function initThemeManager() {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // Tentukan tema awal yang aktif
-    let activeTheme = 'light';
-    if (savedTheme) {
-        activeTheme = savedTheme;
-    } else if (systemPrefersDark) {
-        activeTheme = 'dark';
-    }
-
-    // Set tema saat halaman pertama dimuat
+    let activeTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
     applyTheme(activeTheme);
 
-    // Deteksi klik pada tombol tema secara dinamis (Menggantikan onclick inline)
     themeToggler.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-bs-theme');
         const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -46,7 +36,6 @@ function applyTheme(theme) {
     const icon = document.getElementById('themeIcon');
     if (!btn || !icon) return;
 
-    // Set rupa tombol & Ikon SVG secara modular
     if (theme === 'dark') {
         btn.className = "theme-switch-btn btn btn-light";
         icon.innerHTML = `<path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2a.5.5 0 0 1 .5-.5zM0 8a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 8zm13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zM2.343 2.343a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 1 1-.707.707L2.343 3.05a.5.5 0 0 1 0-.707zm10.932 10.932a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 0 1-.707.707l-1.414-1.414a.5.5 0 0 1 0-.707zm1.414-10.932a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 1 1-.707-.707L12.93 2.343a.5.5 0 0 1 .707 0zm-10.932 10.932a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0z"/>`;
@@ -57,13 +46,44 @@ function applyTheme(theme) {
 }
 
 // ==========================================
-// 2. MODULE: CLIPBOARD MANAGER (SALIN DATA)
+// 2. MODULE: MAIN INTERACTIONS MANAGER (DYNAMIC REUSABLE MODAL & CLIPBOARD)
 // ==========================================
-function initClipboardManager() {
-    // Menggunakan teknik Event Delegation pada body dokumen agar lebih hemat resource internet
+function initInteractionsManager() {
     document.body.addEventListener('click', (event) => {
 
-        // Kasus A: Jika target klik adalah tombol salin rekening bank
+        // --- FITUR 1: OPEN DYNAMIC MODAL QRIS ---
+        const viewBtn = event.target.closest('.js-btn-view-qris');
+        if (viewBtn) {
+            // Ambil semua data meta dari elemen tombol yang diklik
+            const title = viewBtn.getAttribute('data-qris-title');
+            const imgSrc = viewBtn.getAttribute('data-qris-src');
+            const desc = viewBtn.getAttribute('data-qris-desc');
+
+            // Ambil elemen penampung di dalam modal tunggal
+            const modalTitle = document.getElementById('dynamicModalTitle');
+            const modalImg = document.getElementById('dynamicModalImg');
+            const modalDesc = document.getElementById('dynamicModalDesc');
+            const modalLoader = document.getElementById('modalLoader');
+
+            // Reset tampilan (tampilkan loader, sembunyikan gambar lama) sebelum memuat gambar baru
+            modalLoader.classList.remove('d-none');
+            modalImg.classList.add('d-none');
+
+            // Suntikkan teks ke dalam modal
+            if (modalTitle) modalTitle.innerText = title;
+            if (modalDesc) modalDesc.innerText = desc;
+
+            // Suntikkan gambar & hilangkan loader saat gambar selesai diunduh oleh browser
+            if (modalImg) {
+                modalImg.src = imgSrc;
+                modalImg.onload = () => {
+                    modalLoader.classList.add('d-none');
+                    modalImg.classList.remove('d-none');
+                };
+            }
+        }
+
+        // --- FITUR 2: COPY REKENING BANK ---
         const bankBtn = event.target.closest('.js-btn-copy-bank');
         if (bankBtn) {
             const targetId = bankBtn.getAttribute('data-copy-target');
@@ -73,11 +93,10 @@ function initClipboardManager() {
             }
         }
 
-        // Kasus B: Jika target klik adalah tombol salin tautan gambar QRIS
+        // --- FITUR 3: COPY LINK QRIS ---
         const qrisBtn = event.target.closest('.js-btn-copy-qris');
         if (qrisBtn) {
             const relativeUrl = qrisBtn.getAttribute('data-qris-src');
-            // Konversi link relatif gambar menjadi tautan absolut penuh secara aman
             const secureAbsoluteUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + relativeUrl;
             executeCopy(secureAbsoluteUrl, "Link QRIS aman berhasil disalin!");
         }
@@ -86,12 +105,8 @@ function initClipboardManager() {
 
 function executeCopy(text, successMessage) {
     navigator.clipboard.writeText(text)
-        .then(() => {
-            showDynamicToast(successMessage);
-        })
-        .catch(err => {
-            console.error('Gagal menyalin text: ', err);
-        });
+        .then(() => showDynamicToast(successMessage))
+        .catch(err => console.error('Gagal menyalin text: ', err));
 }
 
 // ==========================================
