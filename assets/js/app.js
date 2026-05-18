@@ -1,7 +1,98 @@
 /**
  * Reactmore Digital ID - Core Application JS
  * Berbasis Event Delegation, Reusable, dan Zero-Inline-Onclick.
+ * Integrasi Google Apps Script Database (SheetDBClient).
  */
+
+// ==========================================
+// DB ENGINE: REUSABLE API CLIENT (DATABASE ORM)
+// ==========================================
+class SheetDBClient {
+    constructor(baseUrl, apiKey) {
+        this.baseUrl = baseUrl;
+        this.apiKey = apiKey;
+    }
+
+    /**
+     * Helper Internal untuk eksekusi Fetch HTTP Request
+     */
+    async _request(table, action, method = 'GET', id = null, payload = null) {
+        const params = new URLSearchParams({
+            table: table,
+        });
+
+        if (action) params.append('action', action);
+        if (id) params.append('id', id);
+
+        const url = `${this.baseUrl}?${params.toString()}`;
+
+        const options = {
+            method: 'POST',
+            mode: 'cors'
+        };
+
+        if (method === 'GET') {
+            options.method = 'GET';
+        }
+
+        if (payload && method === 'POST') {
+            // Biarkan dikirim sebagai plain text bawaan agar tidak memicu preflight check CORS
+            options.body = JSON.stringify(payload);
+        }
+
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP Error! Status: ${response.status}`);
+            const result = await response.json();
+
+            if (result.status === 'error' || result.status === 'unauthorized') {
+                throw new Error(result.message || 'Terjadi kesalahan sistem API');
+            }
+            return result.data || result.result || result;
+        } catch (error) {
+            console.error(`SheetDB Client Error [${table}-${action}]:`, error);
+            throw error;
+        }
+    }
+
+    // --- METHOD REUSABLE YANG BISA DIPANGGIL KAPAN SAJA ---
+
+    // Ambil Semua Data dari sebuah tabel
+    async selectAll(table) {
+        return await this._request(table, null, 'GET');
+    }
+
+    // Ambil Satu Data Berdasarkan ID
+    async selectById(table, id) {
+        return await this._request(table, null, 'GET', id);
+    }
+
+    // Ambil Data Relasi/Gabungan (Join Table)
+    async selectWithJoin(table, joinAction) {
+        return await this._request(table, joinAction, 'GET');
+    }
+
+    // Tambah Data Baru (Insert)
+    async insert(table, dataObject) {
+        return await this._request(table, 'insert', 'POST', null, dataObject);
+    }
+
+    // Perbarui Data Berdasarkan ID (Update)
+    async update(table, id, dataObject) {
+        return await this._request(table, 'update', 'POST', id, dataObject);
+    }
+
+    // Hapus Data Berdasarkan ID (Delete)
+    async delete(table, id) {
+        return await this._request(table, 'delete', 'POST', id, {});
+    }
+}
+
+// ==========================================
+// INSTANSIASI DATABASE CLIENT
+// ==========================================
+const API_URL = "https://sheetdb-proxy.reactmoreid.workers.dev/";
+const db = new SheetDBClient(API_URL, null);
 
 // State Global untuk menyimpan data katalog sementara tanpa database
 let globalCatalogData = [];
@@ -169,15 +260,10 @@ function initCatalogFetch() {
     const container = document.getElementById('catalogContainer');
     if (!container) return;
 
-    const jsonPath = 'assets/data/catalog.json';
-
-    fetch(jsonPath)
-        .then(response => {
-            if (!response.ok) throw new Error(`Status: ${response.status}`);
-            return response.json();
-        })
+    // MEMANGGIL METHOD LIBRARY: Ambil data dari tabel/sheet 'catalog'
+    db.selectAll('catalog')
         .then(products => {
-            globalCatalogData = products; // Simpan ke global state
+            globalCatalogData = products;
             container.innerHTML = '';
 
             if (products.length === 0) {
@@ -185,7 +271,6 @@ function initCatalogFetch() {
                 return;
             }
 
-            // Isi Dropdown Options di Modal Order Form sekaligus
             const selectElement = document.getElementById('formProductSelect');
             if (selectElement) {
                 selectElement.innerHTML = products.map(p => `<option value="${p.id}">${p.title}</option>`).join('');
@@ -216,7 +301,7 @@ function initCatalogFetch() {
         })
         .catch(error => {
             console.error('Error fetching catalog:', error);
-            container.innerHTML = `<div class="col-12 text-center py-3"><span class="small text-danger">Gagal memuat katalog.</span></div>`;
+            container.innerHTML = `<div class="col-12 text-center py-3"><span class="small text-danger">Gagal memuat katalog dari Cloud Database.</span></div>`;
         });
 }
 
@@ -359,7 +444,7 @@ function initOrderFormLogic() {
             const nominal = document.getElementById('inputNominal').value;
 
             messageText += `*Tipe Transaksi:* ${orderType.toUpperCase()}\n`;
-            
+
             if (orderType === 'beli') {
                 const walletType = document.getElementById('inputWalletType').value;
                 messageText += `*Nominal Pembelian:* ${nominal}\n`;
