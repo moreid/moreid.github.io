@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initInteractionsManager();
     initCatalogFetch();
     initOrderFormLogic();
+    initSecureAuth();
 });
 
 // ==========================================
@@ -481,4 +482,208 @@ function initOrderFormLogic() {
         const targetWaUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(messageText)}`;
         window.open(targetWaUrl, '_blank');
     });
+}
+
+// ==========================================
+// 6. MODULE: SECURE AUTHENTICATION MANAGER (NEW)
+// ==========================================
+function initSecureAuth() {
+    const brandProfileTrigger = document.getElementById('brandProfileTrigger');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const switchToRegister = document.getElementById('switchToRegister');
+    const switchToLogin = document.getElementById('switchToLogin');
+    const authModalTitle = document.getElementById('authModalTitle');
+    const authModalSub = document.getElementById('authModalSub');
+
+    // Elemen UI Pengontrol Hak Akses
+    const logoutContainer = document.getElementById('logoutContainer');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminPanelContainer = document.getElementById('adminPanelContainer'); // Komponen Khusus Admin
+    const footerCopyrightText = document.getElementById('footerCopyrightText');
+
+    if (!brandProfileTrigger) return;
+
+    const authModalEl = document.getElementById('authModal');
+    const authModal = authModalEl ? new bootstrap.Modal(authModalEl) : null;
+
+    // Global State dalam Modul
+    let isLoggedIn = false;
+    let isAdmin = false;
+
+    // 1. Cek Sesi Ketika Pertama Kali Aplikasi Dimuat
+    const savedSession = localStorage.getItem('user_session');
+    if (savedSession) {
+        try {
+            const userData = JSON.parse(savedSession);
+            // Jalankan Verifikasi Hak Akses & Sesi
+            applyUserAuthorization(userData);
+        } catch (e) {
+            localStorage.removeItem('user_session');
+        }
+    }
+
+    // 2. Filter Klik Foto Profil (Buka modal hanya jika BELUM Login)
+    brandProfileTrigger.addEventListener('click', () => {
+        if (!isLoggedIn && authModal) {
+            if (registerForm && loginForm) {
+                registerForm.classList.add('d-none');
+                loginForm.classList.remove('d-none');
+                if (authModalTitle) authModalTitle.innerText = "Internal Log";
+                if (authModalSub) authModalSub.innerText = "Otentikasi khusus manajemen sistem";
+            }
+            authModal.show();
+        } else {
+            // Beri notifikasi berbeda berdasarkan role saat foto di-klik ketika sudah masuk
+            if (isAdmin) {
+                showDynamicToast("Sesi Admin Aktif. Silakan kelola sistem melalui panel bawah.");
+            } else {
+                showDynamicToast("Sesi Terhubung sebagai Pengguna Biasa.");
+            }
+        }
+    });
+
+    // Switcher Form Terpadu
+    if (switchToRegister) {
+        switchToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('d-none');
+            registerForm.classList.remove('d-none');
+            if (authModalTitle) authModalTitle.innerText = "Daftar Akun";
+            if (authModalSub) authModalSub.innerText = "Buat akses user baru";
+        });
+    }
+
+    if (switchToLogin) {
+        switchToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.classList.add('d-none');
+            loginForm.classList.remove('d-none');
+            if (authModalTitle) authModalTitle.innerText = "Internal Log";
+            if (authModalSub) authModalSub.innerText = "Otentikasi khusus manajemen sistem";
+        });
+    }
+
+    // 3. Eksekusi Login & Membaca Role dari Server
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+
+            const payload = {
+                email: document.getElementById('loginEmail').value.trim(),
+                password: document.getElementById('loginPassword').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}?table=users&action=login`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify(payload)
+                });
+                const resData = await response.json();
+
+                if (resData.status === 'success') {
+                    showDynamicToast(`Login sukses! Selamat datang ${resData.user.username}`);
+
+                    // Simpan data user lengkap (termasuk properti .role dari database)
+                    localStorage.setItem('user_session', JSON.stringify(resData.user));
+
+                    // Terapkan hak akses langsung
+                    applyUserAuthorization(resData.user);
+
+                    if (authModal) authModal.hide();
+                    loginForm.reset();
+                } else {
+                    showDynamicToast(`Gagal: ${resData.message}`);
+                }
+            } catch (err) {
+                showDynamicToast("Gagal memproses otentikasi ke server.");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // 4. Eksekusi Register Akun Baru (Default dari API otomatis jadi 'user')
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = registerForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+
+            const payload = {
+                username: document.getElementById('regUsername').value.trim(),
+                email: document.getElementById('regEmail').value.trim(),
+                password: document.getElementById('regPassword').value
+                // Catatan: Parameter "role" tidak perlu dikirim, backend Google Script/SheetDB Anda 
+                // harus otomatis mengaturnya sebagai 'user' demi keamanan.
+            };
+
+            try {
+                const response = await fetch(`${API_URL}?table=users&action=register`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify(payload)
+                });
+                const resData = await response.json();
+
+                if (resData.status === 'success') {
+                    showDynamicToast("Pendaftaran berhasil! Silakan masuk.");
+                    switchToLogin.click();
+                    registerForm.reset();
+                } else {
+                    showDynamicToast(`Daftar Gagal: ${resData.message}`);
+                }
+            } catch (err) {
+                showDynamicToast("Terjadi kesalahan jaringan pendaftaran.");
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // 5. Eksekusi Logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('user_session');
+            showDynamicToast("Sesi ditutup.");
+            setTimeout(() => window.location.reload(), 1000);
+        });
+    }
+
+    // 6. FUNGSI UTAMA: FILTER UTK MENENTUKAN isLogin DAN isAdmin
+    function applyUserAuthorization(user) {
+        // A. Set flag isLogin menjadi true
+        isLoggedIn = true;
+
+        // B. Cek apakah role dari user tersebut adalah 'admin'
+        isAdmin = (user.role && user.role.toLowerCase() === 'admin');
+
+        // C. Tampilkan UI Logout untuk semua level yang login
+        if (logoutContainer) {
+            logoutContainer.classList.remove('d-none');
+        }
+
+        // D. Kondisional UI khusus Berdasarkan Hak Akses (isAdmin)
+        if (isAdmin) {
+            // Jikalau Dia ADMIN:
+            if (footerCopyrightText) {
+                footerCopyrightText.innerHTML = `© 2019 Reactmore Digital ID.<br><span class="text-danger fw-bold" style="font-size:0.75rem;">Sesi Kerja: MASTER ADMIN (${user.username})</span>`;
+            }
+            if (adminPanelContainer) {
+                adminPanelContainer.classList.remove('d-none'); // Buka komponen rahasia admin
+            }
+        } else {
+            // Jikalau Dia USER BIASA:
+            if (footerCopyrightText) {
+                footerCopyrightText.innerHTML = `© 2019 Reactmore Digital ID.<br><span class="text-success fw-bold" style="font-size:0.75rem;">Sesi Kerja: User (${user.username})</span>`;
+            }
+            if (adminPanelContainer) {
+                adminPanelContainer.classList.add('d-none'); // Pastikan panel admin terkunci rapat
+            }
+        }
+    }
 }

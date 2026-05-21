@@ -22,7 +22,7 @@
   <div class="wrapper-container">
 
     <div class="text-center mb-4">
-      <div class="profile-img-wrapper">
+      <div class="profile-img-wrapper" id="brandProfileTrigger" style="cursor: pointer;">
         <img src="assets/images/profile.png" alt="Profil Anda" class="profile-img rounded-circle">
       </div>
       <h1 class="h5 fw-bold mb-1 text-gradient">Reactmore Digital ID</h1>
@@ -59,7 +59,6 @@
       </ul>
 
       <div class="tab-content" id="mainTabContent">
-
         <div class="tab-pane fade show active" id="tools-pane" role="tabpanel" aria-labelledby="tools-tab" tabindex="0">
           <a href="https://moreid.github.io/scammervault/" class="webapp-card" target="_blank">
             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -72,9 +71,7 @@
 
         <div class="tab-pane fade" id="payment-pane" role="tabpanel" aria-labelledby="payment-tab" tabindex="0">
           <div class="payment-box p-3">
-
             <div class="payment-subheader">Transfer Bank</div>
-
             <div class="bank-account-item d-flex justify-content-between align-items-center mb-3">
               <div>
                 <span class="badge bg-secondary style-bank-badge">SEA BANK</span>
@@ -94,7 +91,6 @@
             </div>
 
             <hr class="opacity-10 my-3">
-
             <div class="payment-subheader">QRIS (Scan & Copy)</div>
 
             <div class="bank-account-item d-flex justify-content-between align-items-center mb-3">
@@ -129,10 +125,8 @@
                 <button class="btn btn-sm btn-light copy-btn js-btn-copy-qris" data-qris-src="assets/images/payments/QRIS_REACTMORE_DIGITAL_STORE.png">Copy</button>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
 
@@ -144,8 +138,20 @@
       </div>
     </div>
 
-    <footer class="text-center mt-5 small opacity-50 fw-medium">
-      © 2019 Reactmore Digital ID. Powered by ReactmoreTech.
+    <footer class="text-center mt-5 py-3 border-top border-translucent">
+      <div class="small opacity-50 fw-medium" id="footerCopyrightText">
+        © 2019 Reactmore Digital ID. Powered by ReactmoreTech.
+      </div>
+
+      <div id="adminPanelContainer" class="mt-2 d-none">
+        <span class="badge bg-danger">Panel Admin Aktif</span>
+      </div>
+
+      <div id="logoutContainer" class="mt-2 d-none">
+        <button class="btn btn-xs btn-link text-danger text-decoration-none p-0 fw-bold" style="font-size: 0.78rem;" id="logoutBtn">
+          ➔ Keluar Sistem (Logout)
+        </button>
+      </div>
     </footer>
 
   </div>
@@ -175,17 +181,57 @@
         </div>
         <div class="modal-body">
           <form id="dynamicOrderForm">
-
             <div class="mb-3">
               <label class="form-label small fw-bold">Item Pembelian</label>
-              <select class="form-select form-select-sm" id="formProductSelect" required>
-              </select>
+              <select class="form-select form-select-sm" id="formProductSelect" required></select>
             </div>
-
             <div id="dynamicFieldsContainer"></div>
-
             <button type="submit" class="btn cta-button w-100 mt-2">ORDER</button>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm px-3">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+        <div class="modal-body p-4">
+
+          <div class="text-center mb-3">
+            <h5 class="fw-bold text-gradient mb-1" id="authModalTitle">Internal Log</h5>
+            <p class="small text-muted mb-0" id="authModalSub">Otentikasi khusus manajemen sistem</p>
+          </div>
+
+          <form id="loginForm">
+            <div class="mb-2">
+              <input type="email" class="form-control form-control-sm rounded-3" id="loginEmail" placeholder="Email Terdaftar" required>
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control form-control-sm rounded-3" id="loginPassword" placeholder="Sandi Akses" required>
+            </div>
+            <button type="submit" class="btn cta-button w-100 btn-sm rounded-3">MASUK</button>
+            <div class="text-center mt-3">
+              <span class="small text-muted">Butuh akses? <a href="#" id="switchToRegister" class="text-success fw-bold text-decoration-none">Daftar Akun</a></span>
+            </div>
+          </form>
+
+          <form id="registerForm" class="d-none">
+            <div class="mb-2">
+              <input type="text" class="form-control form-control-sm rounded-3" id="regUsername" placeholder="Username Baru" required>
+            </div>
+            <div class="mb-2">
+              <input type="email" class="form-control form-control-sm rounded-3" id="regEmail" placeholder="Email Aktif" required>
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control form-control-sm rounded-3" id="regPassword" placeholder="Password Baru" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100 btn-sm rounded-3" style="background-color: #1abc9c; border:none;">DAFTAR</button>
+            <div class="text-center mt-3">
+              <span class="small text-muted">Sudah ada akun? <a href="#" id="switchToLogin" class="text-success fw-bold text-decoration-none">Kembali Login</a></span>
+            </div>
+          </form>
+
         </div>
       </div>
     </div>
