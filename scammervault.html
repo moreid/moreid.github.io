@@ -109,7 +109,8 @@
             </div>
             <div class="mb-3">
               <label class="form-label small fw-bold mb-1">Bukti Bukti Transaksi / Chat (Screenshot)</label>
-              <input type="file" id="reportScamFile" class="form-control form-control-sm rounded-3" accept="image/*" required>
+              <input type="file" class="form-control form-control-sm rounded-3" id="reportScamFile" accept="image/*" multiple required>
+              <div class="form-text" style="font-size: 0.7rem;">Anda dapat memilih lebih dari 1 foto bukti sekaligus.</div>
               <div class="text-muted" style="font-size: 0.68rem; margin-top:2px;">Format berkas yang didukung: JPG, PNG, WEBP.</div>
             </div>
 
@@ -121,13 +122,15 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/SheetDBClient.js?v=1.0.0"></script>
+  <script src="assets/js/theme.js?v=1.0.0"></script>
+  <script src="assets/js/scammervault.js?v=1.0.0"></script>
   <script>
     // Konfigurasi Router API Worker Anda (Sesuai dengan konfigurasi utama di app.js)
     const API_URL = "https://sheetdb-proxy.reactmoreid.workers.dev/";
     let allReports = [];
 
     document.addEventListener("DOMContentLoaded", () => {
-      initTheme();
       checkUserSession();
       fetchVaultData();
 
@@ -145,32 +148,6 @@
       // Handler Submit Formulir
       document.getElementById("vaultReportForm").addEventListener("submit", handleFormSubmit);
     });
-
-    function initTheme() {
-      const toggler = document.getElementById('themeToggler');
-      const icon = document.getElementById('themeIcon');
-      if (!toggler) return;
-
-      const setIcon = (theme) => {
-        if (theme === 'dark') {
-          icon.innerHTML = `<path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 :8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>`;
-        } else {
-          icon.innerHTML = `<path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 3.79 3.067 6.86 6.86 6.86q.791-.001 1.54-.16a7.2 7.2 0 0 1-1.66-4.577C7.765 6.136 9.873 3.518 12.63 2.597q-.465-.17-.946-.248a7.2 7.2 0 0 0-6.825 1.012A7.3 7.3 0 0 0 4.858 1.311"/>`;
-        }
-      };
-
-      const activeTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-bs-theme', activeTheme);
-      setIcon(activeTheme);
-
-      toggler.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-bs-theme');
-        const target = current === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-bs-theme', target);
-        localStorage.setItem('theme', target);
-        setIcon(target);
-      });
-    }
 
     function checkUserSession() {
       const session = localStorage.getItem('user_session');
@@ -217,10 +194,11 @@
       container.innerHTML = data.map(item => `
             <div class="webapp-card" style="border-left: 4px solid #e74c3c;">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <div class="fw-bold text-danger" style="font-size: 0.95rem;">ID Kerugian: Rp ${Number(item.nominal_loss).toLocaleString('id-ID')}</div>
+                    <div class="fw-bold text-danger" style="font-size: 0.95rem;">ID: ${item.report_id}</div>
                     <span class="badge bg-secondary style-bank-badge" style="font-size:0.6rem;">${item.created_at ? item.created_at.substring(0,10) : 'Baru'}</span>
                 </div>
-                <div class="small mb-1"><strong>Keuangan:</strong> <span class="bg-body-secondary px-1 rounded text-break">${item.scam_financial}</span></div>
+                <div class="small mb-1"><strong>Account:</strong> <span class="bg-body-secondary px-1 rounded text-break">${item.scam_financial}</span></div>
+                <div class="small mb-1"><strong>Total Loss:</strong> <span class="bg-body-secondary px-1 rounded text-break">Rp ${Number(item.nominal_loss).toLocaleString('id-ID')}</span></div>
                 <div class="small mb-2"><strong>Kontak/Medsos:</strong> <span class="text-break">${item.scam_sosmed}</span></div>
                 <p class="small opacity-75 mb-2 border-top pt-1" style="font-size:0.8rem; line-height:1.4;">${item.kronologi}</p>
                 ${item.evidence_url ? `<a href="${item.evidence_url}" target="_blank" class="btn btn-xs btn-outline-secondary py-0 px-2 rounded-2" style="font-size:0.7rem;">📁 Lihat Bukti Objek</a>` : ''}
@@ -232,7 +210,7 @@
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onload = () => resolve(reader.result.split(',')[1]); // Ambil teks base64 murni setelah koma
         reader.onerror = error => reject(error);
       });
     }
@@ -243,15 +221,23 @@
       submitBtn.disabled = true;
       submitBtn.innerText = "Mengunggah Berkas Bukti & Data...";
 
-      const fileInput = document.getElementById("reportScamFile").files[0];
-      let fileBase64 = "";
-      let fileName = "";
+      // Mengambil semua daftar berkas yang dipilih pengguna
+      const fileInputList = document.getElementById("reportScamFile").files;
+      const imagesArray = [];
 
-      if (fileInput) {
-        fileBase64 = await fileToBase64(fileInput);
-        fileName = `${Date.now()}_${fileInput.name.replace(/\s+/g, '_')}`;
+      if (fileInputList.length > 0) {
+        // Konversi seluruh file yang dipilih menjadi struktur Array Base64 secara paralel
+        await Promise.all(Array.from(fileInputList).map(async (file, index) => {
+          const base64Data = await fileToBase64(file);
+          const customFileName = `${Date.now()}_bukti_${index + 1}_${file.name.replace(/\s+/g, '_')}`;
+          imagesArray.push({
+            file_data: base64Data,
+            file_name: customFileName
+          });
+        }));
       }
 
+      // Menyusun struktur payload baru yang membawa array images
       const payload = {
         pelapor_name: document.getElementById("reportPelaporName").value.trim(),
         pelapor_contact_type: document.getElementById("reportPelaporType").value,
@@ -260,8 +246,7 @@
         scam_sosmed: document.getElementById("reportScamSosmed").value.trim(),
         nominal_loss: document.getElementById("reportScamNominal").value,
         kronologi: document.getElementById("reportScamText").value.trim(),
-        file_data: fileBase64,
-        file_name: fileName
+        images: imagesArray // Mengirimkan banyak foto sekaligus dalam bentuk array objek
       };
 
       try {
@@ -271,11 +256,12 @@
         });
         const res = await response.json();
 
-        if (res.status === "success") {
+        // Mengatasi return undefined dengan memastikan penanganan response object yang tepat
+        if (res && res.status === "success") {
           alert("Laporan penipuan berhasil dicatat ke dalam database ScammerVault.");
           window.location.reload();
         } else {
-          alert("Gagal: " + res.message);
+          alert("Gagal menyimpan data: " + (res.message || "Terjadi kesalahan pada sistem backend."));
           submitBtn.disabled = false;
           submitBtn.innerText = "KIRIM LAPORAN ADUAN";
         }
