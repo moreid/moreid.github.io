@@ -34,7 +34,7 @@
       </div>
       <div class="col-6">
         <div class="payment-box p-3 text-center h-100 d-flex flex-column justify-content-center align-items-center">
-          <button class="btn btn-sm cta-button w-100 py-2 rounded-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+          <button class="btn btn-sm cta-button w-100 py-2 rounded-3" data-bs-toggle="modal" data-bs-target="#scamReportModal">
             ➕ Buat Laporan
           </button>
         </div>
@@ -60,74 +60,179 @@
     </footer>
   </div>
 
-  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered px-3">
+  <div class="modal fade" id="scamReportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
       <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
         <div class="modal-header border-0 pb-0">
-          <h5 class="modal-title fw-bold text-gradient">Formulir Laporan</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="w-100 text-center pt-2">
+            <h5 class="modal-title fw-bold text-gradient mb-1">Buat Laporan Baru</h5>
+            <p class="small text-muted mb-0">Laporkan tindakan penipuan demi ruang siber yang aman</p>
+          </div>
+          <button type="button" class="btn-close position-absolute end-0 top-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body p-4 pt-2">
-          <form id="vaultReportForm">
+        <div class="modal-body p-4">
+          <form id="scammerReportForm">
 
-            <div class="payment-box p-2 mb-3 bg-light border-0">
-              <span class="badge bg-secondary mb-2" id="badgeSessionStatus">Sesi: Anonim / Unlogin</span>
-              <div class="mb-2">
-                <label class="form-label small fw-bold mb-1">Nama Lengkap Pelapor</label>
-                <input type="text" id="reportPelaporName" class="form-control form-control-sm rounded-3" placeholder="Nama Anda" required>
+            <div class="payment-subheader">I. Data Identitas Pelapor (Disensor Otomatis)</div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Nama Anda</label>
+              <input type="text" class="form-control form-control-sm rounded-3" id="reportPelaporName" placeholder="Contoh: Budi Setiawan" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold mb-1">Konfirmasi Via</label>
+                <select class="form-select form-select-sm rounded-3" id="reportPelaporType" required>
+                  <option value="WhatsApp" selected>WhatsApp</option>
+                  <option value="Telegram">Telegram</option>
+                  <option value="Facebook">Facebook URL</option>
+                </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label small fw-bold mb-1">Kontak Konfirmasi Pelapor</label>
-                <div class="input-group input-group-sm">
-                  <select id="reportPelaporType" class="form-select rounded-start-3" style="max-width: 100px;">
-                    <option value="WhatsApp">WhatsApp</option>
-                    <option value="Email">Email</option>
-                  </select>
-                  <input type="text" id="reportPelaporVal" class="form-control" placeholder="Nomor / Email aktif Anda" required>
+              <div class="col-6">
+                <label class="form-label small fw-bold mb-1">Kontak / Link Profil</label>
+                <input type="text" class="form-control form-control-sm rounded-3" id="reportPelaporVal" placeholder="No WA / Username" required>
+              </div>
+            </div>
+
+            <div class="payment-subheader">II. Informasi Finansial Pelaku</div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Tipe Akun Finansial</label>
+              <select class="form-select form-select-sm rounded-3" id="finAccountType" required>
+                <option value="" disabled selected>-- Pilih Tipe Finansial Pelaku --</option>
+                <option value="Bank">Bank Transfer</option>
+                <option value="E-Wallet">E-Wallet / Dompet Digital</option>
+                <option value="Crypto">Crypto Currency</option>
+              </select>
+            </div>
+
+            <div id="dynamicFinFields" class="p-2 mb-3 rounded-3 bg-light d-none payment-box" style="border: 1px dashed #dee2e6;">
+
+              <div id="groupBankEwallet" class="d-none">
+                <div class="row g-2 mb-2">
+                  <div class="col-5">
+                    <label class="form-label sx-label fw-bold mb-1" id="lblFinSelect">Pilih Vendor</label>
+                    <select class="form-select form-select-sm rounded-3" id="finVendorSelect">
+                    </select>
+                  </div>
+                  <div class="col-7">
+                    <label class="form-label sx-label fw-bold mb-1">Nomor Rekening / Akun</label>
+                    <input type="text" class="form-control form-control-sm rounded-3" id="finAccountNumber" placeholder="Masukkan nomor akun">
+                  </div>
+                </div>
+                <div class="mb-1 d-none" id="groupFinLainnya">
+                  <label class="form-label sx-label fw-bold text-danger mb-1">Nama Bank / E-Wallet Baru (Custom)</label>
+                  <input type="text" class="form-control form-control-sm rounded-3" id="finVendorCustom" placeholder="Sebutkan nama Bank / E-Wallet yang tidak terdaftar">
                 </div>
               </div>
-              <div class="alert alert-warning py-1 px-2 mb-0 border-0 rounded-3" style="font-size: 0.72rem; line-height:1.4;">
-                ⚠️ <strong>Proteksi Privasi:</strong> Kontak konfirmasi pelapor disimpan aman di server internal dan <strong>TIDAK</strong> akan dipublikasikan ke publik.
+
+              <div id="groupCrypto" class="d-none">
+                <div class="row g-2 mb-2">
+                  <div class="col-5">
+                    <label class="form-label sx-label fw-bold mb-1">Metode Crypto</label>
+                    <select class="form-select form-select-sm rounded-3" id="cryptoMethodSelect">
+                      <option value="Address" selected>Crypto Address</option>
+                      <option value="UID">User ID (UID) Exchange</option>
+                    </select>
+                  </div>
+                  <div class="col-7">
+                    <label class="form-label sx-label fw-bold mb-1" id="lblCryptoValue">Alamat Wallet Address / Network</label>
+                    <input type="text" class="form-control form-control-sm rounded-3" id="cryptoValueInput" placeholder="Contoh: TR7NHqjeCpJV... (TRC20)">
+                  </div>
+                </div>
+
+                <div id="groupCryptoUidOpt" class="d-none">
+                  <div class="mb-2">
+                    <label class="form-label sx-label fw-bold mb-1">Pilih Platform Exchange (Top 10)</label>
+                    <select class="form-select form-select-sm rounded-3" id="cryptoExchangeSelect">
+                      <option value="Binance">Binance</option>
+                      <option value="Bybit">Bybit</option>
+                      <option value="OKX">OKX</option>
+                      <option value="KuCoin">KuCoin</option>
+                      <option value="Gate.io">Gate.io</option>
+                      <option value="Bitget">Bitget</option>
+                      <option value="Mexc">MEXC</option>
+                      <option value="Indodax">Indodax</option>
+                      <option value="Tokocrypto">Tokocrypto</option>
+                      <option value="Pintu">Pintu</option>
+                      <option value="Lainnya">Lainnya (Bursa Lain)</option>
+                    </select>
+                  </div>
+                  <div class="mb-1 d-none" id="groupExchangeLainnya">
+                    <label class="form-label sx-label fw-bold text-danger mb-1">Nama Exchange Kustom</label>
+                    <input type="text" class="form-control form-control-sm rounded-3" id="cryptoExchangeCustom" placeholder="Masukkan nama bursa exchange pelaku">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <label class="form-label sx-label fw-bold mb-1">Nama Pemilik Akun / Atas Nama (A/N)</label>
+                <input type="text" class="form-control form-control-sm rounded-3" id="finAccountHolder" placeholder="Contoh: A/N Penipu / Unknown" required>
               </div>
             </div>
 
-            <div class="mb-2">
-              <label class="form-label small fw-bold mb-1">Rekening / E-Wallet / Crypto / UID Penipu</label>
-              <input type="text" id="reportScamFin" class="form-control form-control-sm rounded-3" placeholder="Contoh: Dana 0812xxx atau BCA 8920xxx" required>
-            </div>
-            <div class="mb-2">
-              <label class="form-label small fw-bold mb-1">Media Sosial / Link Penipu</label>
-              <input type="text" id="reportScamSosmed" class="form-control form-control-sm rounded-3" placeholder="Contoh: FB URL, ID Telegram, atau No. WhatsApp Penipu" required>
-            </div>
-            <div class="mb-2">
-              <label class="form-label small fw-bold mb-1">Nominal Kerugian (Rp)</label>
-              <input type="number" id="reportScamNominal" class="form-control form-control-sm rounded-3" placeholder="Contoh: 150000" required>
-            </div>
-            <div class="mb-2">
-              <label class="form-label small fw-bold mb-1">Kronologi Kejadian</label>
-              <textarea id="reportScamText" class="form-control form-control-sm rounded-3" rows="3" placeholder="Jelaskan secara singkat penipuan yang terjadi..." required></textarea>
-            </div>
+            <div class="payment-subheader">III. Media Sosial & Kontak Pelaku</div>
             <div class="mb-3">
-              <label class="form-label small fw-bold mb-1">Bukti Bukti Transaksi / Chat (Screenshot)</label>
-              <input type="file" class="form-control form-control-sm rounded-3" id="reportScamFile" accept="image/*" multiple required>
-              <div class="form-text" style="font-size: 0.7rem;">Anda dapat memilih lebih dari 1 foto bukti sekaligus.</div>
-              <div class="text-muted" style="font-size: 0.68rem; margin-top:2px;">Format berkas yang didukung: JPG, PNG, WEBP.</div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-muted" style="font-size: 0.72rem;">Tambahkan akun sosmed pelaku jika ada:</span>
+                <button type="button" class="btn btn-xs btn-success rounded-pill px-2 py-0" id="addSosmedBtn" style="font-size: 0.7rem; font-weight: 600;">+ Tambah Akun</button>
+              </div>
+              <div id="sosmedDynamicContainer">
+                <div class="row g-2 mb-2 sosmed-row">
+                  <div class="col-4">
+                    <select class="form-select form-select-sm rounded-3 scam-platform">
+                      <option value="WhatsApp">WhatsApp</option>
+                      <option value="Telegram">Telegram</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="Facebook">Facebook URL</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="Website">Website/Lain</option>
+                    </select>
+                  </div>
+                  <div class="col-8 d-flex gap-2">
+                    <input type="text" class="form-control form-control-sm rounded-3 scam-username" placeholder="Username / No HP" required>
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3 px-2 py-0 remove-sosmed-btn" style="font-size:0.9rem; line-height:1;" disabled>×</button>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <button type="submit" class="btn cta-button w-100 btn-sm rounded-3 py-2" id="submitReportBtn">KIRIM LAPORAN ADUAN</button>
+            <div class="payment-subheader">IV. Detail Kasus Kejadian</div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Nominal Kerugian (Rp)</label>
+              <input type="number" class="form-control form-control-sm rounded-3" id="reportScamNominal" placeholder="Contoh: 1500000" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold mb-1">Kronologi Singkat Kejadian</label>
+              <textarea class="form-control form-control-sm rounded-3" id="reportScamText" rows="3" placeholder="Jelaskan kronologi singkat modus penipuan..." required></textarea>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label small fw-bold mb-1">Unggah Bukti Gambar (Bisa Banyak Foto)</label>
+              <input type="file" class="form-control form-control-sm rounded-3" id="reportScamFile" accept="image/*" multiple required>
+              <div class="form-text" style="font-size: 0.65rem; opacity:0.8;">Tekan Ctrl/Shift untuk memilih lebih dari 1 foto bukti sekaligus.</div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 btn-sm rounded-3 fw-bold py-2" id="submitReportBtn" style="background-color: #1abc9c; border: none;">KIRIM LAPORAN ADUAN</button>
           </form>
         </div>
       </div>
     </div>
   </div>
 
+  <style>
+    .sx-label {
+      font-size: 0.72rem;
+      color: var(--bs-secondary-color);
+    }
+  </style>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="assets/js/SheetDBClient.js?v=1.0.0"></script>
   <script src="assets/js/theme.js?v=1.0.0"></script>
-  <script src="assets/js/scammervault.js?v=1.0.0"></script>
+
   <script>
-    // Konfigurasi Router API Worker Anda (Sesuai dengan konfigurasi utama di app.js)
-    const API_URL = "https://sheetdb-proxy.reactmoreid.workers.dev/";
+    const API_URL = "https://sheetdb-proxy.reactmoreid.workers.dev/"; // Endpoint proxy Worker Anda
+
     let allReports = [];
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -206,47 +311,200 @@
         `).join('');
     }
 
+    // DATA DAFTAR BANK & E-WALLET POPULER
+    const daftarBank = ["BCA", "Mandiri", "BRI", "BNI", "BSI", "CIMB Niaga", "Permata", "Bank Jago", "Allo Bank", "Lainnya"];
+    const daftarEwallet = ["Dana", "Ovo", "GoPay", "LinkAja", "ShopeePay", "Doku", "Lainnya"];
+
+    // DOM ELEMENTS UNTUK FORM FINANSIAL DINAMIS
+    const finAccountType = document.getElementById("finAccountType");
+    const dynamicFinFields = document.getElementById("dynamicFinFields");
+    const groupBankEwallet = document.getElementById("groupBankEwallet");
+    const groupCrypto = document.getElementById("groupCrypto");
+
+    const lblFinSelect = document.getElementById("lblFinSelect");
+    const finVendorSelect = document.getElementById("finVendorSelect");
+    const finAccountNumber = document.getElementById("finAccountNumber");
+    const groupFinLainnya = document.getElementById("groupFinLainnya");
+    const finVendorCustom = document.getElementById("finVendorCustom");
+
+    const cryptoMethodSelect = document.getElementById("cryptoMethodSelect");
+    const lblCryptoValue = document.getElementById("lblCryptoValue");
+    const cryptoValueInput = document.getElementById("cryptoValueInput");
+    const groupCryptoUidOpt = document.getElementById("groupCryptoUidOpt");
+    const cryptoExchangeSelect = document.getElementById("cryptoExchangeSelect");
+    const groupExchangeLainnya = document.getElementById("groupExchangeLainnya");
+    const cryptoExchangeCustom = document.getElementById("cryptoExchangeCustom");
+    const finAccountHolder = document.getElementById("finAccountHolder");
+
+    // EVENT HANDLER PERUBAHAN UTAMA: TIPE AKUN FINANSIAL
+    finAccountType.addEventListener("change", function() {
+      const tipe = this.value;
+      dynamicFinFields.classList.remove("d-none");
+
+      // Reset requirement & visibility default
+      groupBankEwallet.classList.add("d-none");
+      groupCrypto.classList.add("d-none");
+      finVendorSelect.required = false;
+      finAccountNumber.required = false;
+      cryptoValueInput.required = false;
+
+      if (tipe === "Bank" || tipe === "E-Wallet") {
+        groupBankEwallet.classList.remove("d-none");
+        finVendorSelect.required = true;
+        finAccountNumber.required = true;
+
+        lblFinSelect.innerText = tipe === "Bank" ? "Pilih Bank" : "Pilih E-Wallet";
+        finAccountNumber.placeholder = tipe === "Bank" ? "Masukkan Nomor Rekening" : "Masukkan Nomor HP E-Wallet";
+
+        // Render Opsi Dropdown
+        const dataList = tipe === "Bank" ? daftarBank : daftarEwallet;
+        finVendorSelect.innerHTML = dataList.map(item => `<option value="${item}">${item}</option>`).join("");
+        finVendorSelect.dispatchEvent(new Event("change"));
+
+      } else if (tipe === "Crypto") {
+        groupCrypto.classList.remove("d-none");
+        cryptoValueInput.required = true;
+        cryptoMethodSelect.dispatchEvent(new Event("change"));
+      }
+    });
+
+    // EVENT HANDLER JIKA PILIH "LAINNYA" PADA VENDOR BANK / EWALLET
+    finVendorSelect.addEventListener("change", function() {
+      if (this.value === "Lainnya") {
+        groupFinLainnya.classList.remove("d-none");
+        finVendorCustom.required = true;
+      } else {
+        groupFinLainnya.classList.add("d-none");
+        finVendorCustom.required = false;
+      }
+    });
+
+    // EVENT HANDLER PERUBAHAN METODE CRYPTO (ADDRESS VS UID)
+    cryptoMethodSelect.addEventListener("change", function() {
+      if (this.value === "UID") {
+        lblCryptoValue.innerText = "Nomor UID Akun Pelaku";
+        cryptoValueInput.placeholder = "Masukkan angka UID (contoh: 8749201)";
+        groupCryptoUidOpt.classList.remove("d-none");
+        cryptoExchangeSelect.dispatchEvent(new Event("change"));
+      } else {
+        lblCryptoValue.innerText = "Alamat Wallet Address (Crypto Address)";
+        cryptoValueInput.placeholder = "Contoh: TR7NHqjeCpJV... (TRC20)";
+        groupCryptoUidOpt.classList.add("d-none");
+        groupExchangeLainnya.classList.add("d-none");
+        cryptoExchangeCustom.required = false;
+      }
+    });
+
+    // EVENT HANDLER JIKA PILIH EXCHANGE "LAINNYA" PADA CRYPTO UID
+    cryptoExchangeSelect.addEventListener("change", function() {
+      if (this.value === "Lainnya" && cryptoMethodSelect.value === "UID") {
+        groupExchangeLainnya.classList.remove("d-none");
+        cryptoExchangeCustom.required = true;
+      } else {
+        groupExchangeLainnya.classList.add("d-none");
+        cryptoExchangeCustom.required = false;
+      }
+    });
+
+    // 1. LOGIKA INTERAKSI DINAMIS TAMBAH/HAPUS BARIS SOSMED DI DALAM MODAL
+    const sosmedContainer = document.getElementById("sosmedDynamicContainer");
+    const addSosmedBtn = document.getElementById("addSosmedBtn");
+
+    addSosmedBtn.addEventListener("click", () => {
+      const newRow = document.createElement("div");
+      newRow.className = "row g-2 mb-2 sosmed-row";
+      newRow.style.animation = "fadeIn 0.2s ease";
+      newRow.innerHTML = `
+        <div class="col-4">
+          <select class="form-select form-select-sm rounded-3 scam-platform">
+            <option value="WhatsApp">WhatsApp</option>
+            <option value="Telegram">Telegram</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Facebook">Facebook URL</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Website">Website/Lain</option>
+          </select>
+        </div>
+        <div class="col-8 d-flex gap-2">
+          <input type="text" class="form-control form-control-sm rounded-3 scam-username" placeholder="Username / No HP" required>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-3 px-2 py-0 remove-sosmed-btn" style="font-size:0.9rem; line-height:1;">×</button>
+        </div>
+      `;
+      sosmedContainer.appendChild(newRow);
+      toggleRemoveButtons();
+    });
+
+    sosmedContainer.addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove-sosmed-btn")) {
+        e.target.closest(".sosmed-row").remove();
+        toggleRemoveButtons();
+      }
+    });
+
+    function toggleRemoveButtons() {
+      const rows = sosmedContainer.querySelectorAll(".sosmed-row");
+      rows.forEach(row => {
+        const btn = row.querySelector(".remove-sosmed-btn");
+        btn.disabled = rows.length === 1;
+      });
+    }
+
+    // 2. CONVERTER FILE KE STRING BASE64 BERSIH
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]); // Ambil teks base64 murni setelah koma
+        reader.onload = () => resolve(reader.result.split(',')[1]);
         reader.onerror = error => reject(error);
       });
     }
 
-    async function handleFormSubmit(e) {
+    // 3. EVENT HANDLER KIRIM FORM LAPORAN DARI MODAL
+    document.getElementById("scammerReportForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const submitBtn = document.getElementById("submitReportBtn");
       submitBtn.disabled = true;
-      submitBtn.innerText = "Mengunggah Berkas Bukti & Data...";
+      submitBtn.innerText = "Memproses Berkas Bukti & Mengunggah Laporan...";
 
-      // Mengambil semua daftar berkas yang dipilih pengguna
+      // A. Ambil Semua Nilai Input Media Sosial Dinamis
+      const sosmedRows = sosmedContainer.querySelectorAll(".sosmed-row");
+      const sosmedArray = [];
+      sosmedRows.forEach(row => {
+        const platform = row.querySelector(".scam-platform").value;
+        const username = row.querySelector(".scam-username").value.trim();
+        if (username) {
+          sosmedArray.push({
+            platform,
+            username
+          });
+        }
+      });
+
+      // B. Ambil Seluruh Gambar Terpilih (Multiple Image Loop)
       const fileInputList = document.getElementById("reportScamFile").files;
       const imagesArray = [];
 
       if (fileInputList.length > 0) {
-        // Konversi seluruh file yang dipilih menjadi struktur Array Base64 secara paralel
         await Promise.all(Array.from(fileInputList).map(async (file, index) => {
           const base64Data = await fileToBase64(file);
-          const customFileName = `${Date.now()}_bukti_${index + 1}_${file.name.replace(/\s+/g, '_')}`;
+          const cleanName = `${Date.now()}_bukti_${index + 1}_${file.name.replace(/\s+/g, '_')}`;
           imagesArray.push({
             file_data: base64Data,
-            file_name: customFileName
+            file_name: cleanName
           });
         }));
       }
 
-      // Menyusun struktur payload baru yang membawa array images
+      // C. Susun Payload Akhir (scam_sosmed di-stringified ke JSON String)
       const payload = {
         pelapor_name: document.getElementById("reportPelaporName").value.trim(),
         pelapor_contact_type: document.getElementById("reportPelaporType").value,
         pelapor_contact_val: document.getElementById("reportPelaporVal").value.trim(),
         scam_financial: document.getElementById("reportScamFin").value.trim(),
-        scam_sosmed: document.getElementById("reportScamSosmed").value.trim(),
+        scam_sosmed: JSON.stringify(sosmedArray), // Disimpan dalam bentuk JSON String yang aman di Spreadsheet
         nominal_loss: document.getElementById("reportScamNominal").value,
         kronologi: document.getElementById("reportScamText").value.trim(),
-        images: imagesArray // Mengirimkan banyak foto sekaligus dalam bentuk array objek
+        images: imagesArray
       };
 
       try {
@@ -256,22 +514,22 @@
         });
         const res = await response.json();
 
-        // Mengatasi return undefined dengan memastikan penanganan response object yang tepat
-        if (res && res.status === "success") {
-          alert("Laporan penipuan berhasil dicatat ke dalam database ScammerVault.");
+        if (res && (res.status === "success" || res.id)) {
+          alert("Sukses! Laporan Anda telah berhasil dicatat ke dalam database ScammerVault.");
           window.location.reload();
         } else {
-          alert("Gagal menyimpan data: " + (res.message || "Terjadi kesalahan pada sistem backend."));
+          alert("Gagal memproses data: " + (res.message || "Periksa server Google Sheets Anda."));
           submitBtn.disabled = false;
           submitBtn.innerText = "KIRIM LAPORAN ADUAN";
         }
       } catch (err) {
-        alert("Kesalahan jaringan saat menghubungi server proxy.");
+        alert("Terjadi masalah jaringan atau koneksi proxy gagal.");
         submitBtn.disabled = false;
         submitBtn.innerText = "KIRIM LAPORAN ADUAN";
       }
-    }
+    });
   </script>
+
 </body>
 
 </html>
