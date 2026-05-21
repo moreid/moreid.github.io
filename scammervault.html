@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reactmore Digital ID | ScammerVault</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="assets/css/app.css?v=1.0.2" rel="stylesheet">
+</head>
+
+<body>
+  <div class="theme-switch-btn btn btn-dark" id="themeToggler">
+    <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"></svg>
+  </div>
+
+  <div class="wrapper-container" style="max-width: 720px;">
+    <div class="text-center mb-4">
+      <div class="profile-img-wrapper" style="cursor: pointer;" onclick="window.location.href='index.html'">
+        <img src="assets/images/profile.png" alt="Profil" class="profile-img rounded-circle">
+      </div>
+      <h1 class="h4 fw-bold mb-1 text-gradient">ScammerVault DB</h1>
+      <p class="small text-muted px-2 opacity-75">Database Laporan Penipuan Digital Transparan. Teliti sebelum bertransaksi demi keamanan bersama.</p>
+    </div>
+
+    <div class="row g-2 mb-4">
+      <div class="col-6">
+        <div class="payment-box p-3 text-center h-100">
+          <div class="payment-subheader mb-1">Total Kasus</div>
+          <h3 class="fw-bold text-gradient mb-0" id="countTotalLaporan">0</h3>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="payment-box p-3 text-center h-100 d-flex flex-column justify-content-center align-items-center">
+          <button class="btn btn-sm cta-button w-100 py-2 rounded-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+            ➕ Buat Laporan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-box p-3 mb-4">
+      <div class="payment-subheader">Pencarian Data Penipu</div>
+      <div class="input-group input-group-sm">
+        <input type="text" id="vaultSearchInput" class="form-control rounded-3" placeholder="Cari Bank / E-Wallet / Nomor / Medsos Penipu...">
+      </div>
+    </div>
+
+    <div class="section-title">5 Laporan Terbaru</div>
+    <div id="recentReportsContainer" class="d-flex flex-column gap-3 mb-4">
+      <div class="text-center py-4 opacity-50 small">Memuat basis data laporan...</div>
+    </div>
+
+    <footer class="text-center mt-5 py-3 border-top border-translucent">
+      <div class="small opacity-50 fw-medium">
+        © 2019 Reactmore Digital ID. Powered by ReactmoreTech.
+      </div>
+    </footer>
+  </div>
+
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered px-3">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-gradient">Formulir Laporan</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 pt-2">
+          <form id="vaultReportForm">
+
+            <div class="payment-box p-2 mb-3 bg-light border-0">
+              <span class="badge bg-secondary mb-2" id="badgeSessionStatus">Sesi: Anonim / Unlogin</span>
+              <div class="mb-2">
+                <label class="form-label small fw-bold mb-1">Nama Lengkap Pelapor</label>
+                <input type="text" id="reportPelaporName" class="form-control form-control-sm rounded-3" placeholder="Nama Anda" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label small fw-bold mb-1">Kontak Konfirmasi Pelapor</label>
+                <div class="input-group input-group-sm">
+                  <select id="reportPelaporType" class="form-select rounded-start-3" style="max-width: 100px;">
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Email">Email</option>
+                  </select>
+                  <input type="text" id="reportPelaporVal" class="form-control" placeholder="Nomor / Email aktif Anda" required>
+                </div>
+              </div>
+              <div class="alert alert-warning py-1 px-2 mb-0 border-0 rounded-3" style="font-size: 0.72rem; line-height:1.4;">
+                ⚠️ <strong>Proteksi Privasi:</strong> Kontak konfirmasi pelapor disimpan aman di server internal dan <strong>TIDAK</strong> akan dipublikasikan ke publik.
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Rekening / E-Wallet / Crypto / UID Penipu</label>
+              <input type="text" id="reportScamFin" class="form-control form-control-sm rounded-3" placeholder="Contoh: Dana 0812xxx atau BCA 8920xxx" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Media Sosial / Link Penipu</label>
+              <input type="text" id="reportScamSosmed" class="form-control form-control-sm rounded-3" placeholder="Contoh: FB URL, ID Telegram, atau No. WhatsApp Penipu" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Nominal Kerugian (Rp)</label>
+              <input type="number" id="reportScamNominal" class="form-control form-control-sm rounded-3" placeholder="Contoh: 150000" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold mb-1">Kronologi Kejadian</label>
+              <textarea id="reportScamText" class="form-control form-control-sm rounded-3" rows="3" placeholder="Jelaskan secara singkat penipuan yang terjadi..." required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold mb-1">Bukti Bukti Transaksi / Chat (Screenshot)</label>
+              <input type="file" id="reportScamFile" class="form-control form-control-sm rounded-3" accept="image/*" required>
+              <div class="text-muted" style="font-size: 0.68rem; margin-top:2px;">Format berkas yang didukung: JPG, PNG, WEBP.</div>
+            </div>
+
+            <button type="submit" class="btn cta-button w-100 btn-sm rounded-3 py-2" id="submitReportBtn">KIRIM LAPORAN ADUAN</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Konfigurasi Router API Worker Anda (Sesuai dengan konfigurasi utama di app.js)
+    const API_URL = "https://sheetdb-proxy.reactmoreid.workers.dev/";
+    let allReports = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initTheme();
+      checkUserSession();
+      fetchVaultData();
+
+      // Pencarian Real-Time (Filter)
+      document.getElementById("vaultSearchInput").addEventListener("input", (e) => {
+        const keyword = e.target.value.toLowerCase();
+        const filtered = allReports.filter(item =>
+          String(item.scam_financial).toLowerCase().includes(keyword) ||
+          String(item.scam_sosmed).toLowerCase().includes(keyword) ||
+          String(item.kronologi).toLowerCase().includes(keyword)
+        );
+        renderReports(filtered.slice(0, 5));
+      });
+
+      // Handler Submit Formulir
+      document.getElementById("vaultReportForm").addEventListener("submit", handleFormSubmit);
+    });
+
+    function initTheme() {
+      const toggler = document.getElementById('themeToggler');
+      const icon = document.getElementById('themeIcon');
+      if (!toggler) return;
+
+      const setIcon = (theme) => {
+        if (theme === 'dark') {
+          icon.innerHTML = `<path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 :8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>`;
+        } else {
+          icon.innerHTML = `<path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 3.79 3.067 6.86 6.86 6.86q.791-.001 1.54-.16a7.2 7.2 0 0 1-1.66-4.577C7.765 6.136 9.873 3.518 12.63 2.597q-.465-.17-.946-.248a7.2 7.2 0 0 0-6.825 1.012A7.3 7.3 0 0 0 4.858 1.311"/>`;
+        }
+      };
+
+      const activeTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', activeTheme);
+      setIcon(activeTheme);
+
+      toggler.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-bs-theme');
+        const target = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-bs-theme', target);
+        localStorage.setItem('theme', target);
+        setIcon(target);
+      });
+    }
+
+    function checkUserSession() {
+      const session = localStorage.getItem('user_session');
+      const badge = document.getElementById("badgeSessionStatus");
+      const nameField = document.getElementById("reportPelaporName");
+
+      if (session) {
+        try {
+          const user = JSON.parse(session);
+          badge.innerText = `Sesi Terautentikasi: ${user.username}`;
+          badge.className = "badge bg-success mb-2";
+          nameField.value = user.username;
+          nameField.setAttribute("readonly", "true");
+        } catch (e) {
+          localStorage.removeItem('user_session');
+        }
+      }
+    }
+
+    async function fetchVaultData() {
+      try {
+        const response = await fetch(`${API_URL}?table=scammervault`);
+        const res = await response.json();
+        if (res.status === 'success') {
+          allReports = res.data || [];
+          document.getElementById("countTotalLaporan").innerText = allReports.length;
+
+          // Urutkan berdasarkan ID/waktu terbaru lalu ambil 5 baris pertama
+          const recentData = [...allReports].reverse().slice(0, 5);
+          renderReports(recentData);
+        }
+      } catch (err) {
+        document.getElementById("recentReportsContainer").innerHTML = `<div class="text-center text-danger py-3 small">Gagal mengambil basis data dari server cloud.</div>`;
+      }
+    }
+
+    function renderReports(data) {
+      const container = document.getElementById("recentReportsContainer");
+      if (data.length === 0) {
+        container.innerHTML = `<div class="text-center py-4 opacity-50 small">Tidak ada kecocokan data laporan.</div>`;
+        return;
+      }
+
+      container.innerHTML = data.map(item => `
+            <div class="webapp-card" style="border-left: 4px solid #e74c3c;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="fw-bold text-danger" style="font-size: 0.95rem;">ID Kerugian: Rp ${Number(item.nominal_loss).toLocaleString('id-ID')}</div>
+                    <span class="badge bg-secondary style-bank-badge" style="font-size:0.6rem;">${item.created_at ? item.created_at.substring(0,10) : 'Baru'}</span>
+                </div>
+                <div class="small mb-1"><strong>Keuangan:</strong> <span class="bg-body-secondary px-1 rounded text-break">${item.scam_financial}</span></div>
+                <div class="small mb-2"><strong>Kontak/Medsos:</strong> <span class="text-break">${item.scam_sosmed}</span></div>
+                <p class="small opacity-75 mb-2 border-top pt-1" style="font-size:0.8rem; line-height:1.4;">${item.kronologi}</p>
+                ${item.evidence_url ? `<a href="${item.evidence_url}" target="_blank" class="btn btn-xs btn-outline-secondary py-0 px-2 rounded-2" style="font-size:0.7rem;">📁 Lihat Bukti Objek</a>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById("submitReportBtn");
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Mengunggah Berkas Bukti & Data...";
+
+      const fileInput = document.getElementById("reportScamFile").files[0];
+      let fileBase64 = "";
+      let fileName = "";
+
+      if (fileInput) {
+        fileBase64 = await fileToBase64(fileInput);
+        fileName = `${Date.now()}_${fileInput.name.replace(/\s+/g, '_')}`;
+      }
+
+      const payload = {
+        pelapor_name: document.getElementById("reportPelaporName").value.trim(),
+        pelapor_contact_type: document.getElementById("reportPelaporType").value,
+        pelapor_contact_val: document.getElementById("reportPelaporVal").value.trim(),
+        scam_financial: document.getElementById("reportScamFin").value.trim(),
+        scam_sosmed: document.getElementById("reportScamSosmed").value.trim(),
+        nominal_loss: document.getElementById("reportScamNominal").value,
+        kronologi: document.getElementById("reportScamText").value.trim(),
+        file_data: fileBase64,
+        file_name: fileName
+      };
+
+      try {
+        const response = await fetch(`${API_URL}?table=scammervault&action=insert`, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        const res = await response.json();
+
+        if (res.status === "success") {
+          alert("Laporan penipuan berhasil dicatat ke dalam database ScammerVault.");
+          window.location.reload();
+        } else {
+          alert("Gagal: " + res.message);
+          submitBtn.disabled = false;
+          submitBtn.innerText = "KIRIM LAPORAN ADUAN";
+        }
+      } catch (err) {
+        alert("Kesalahan jaringan saat menghubungi server proxy.");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "KIRIM LAPORAN ADUAN";
+      }
+    }
+  </script>
+</body>
+
+</html>
