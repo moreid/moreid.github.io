@@ -249,10 +249,12 @@ function formatSosmedToList(sosmedRaw) {
                     displayValue = maskAccountNumber(s.username);
                 }
 
+                // PERBAIKAN: Menambahkan max-width dan text-break agar tidak menjebol layar HP
                 return `
-                            <span class="badge bg-body-secondary text-body border py-1 px-2 rounded-2 d-inline-flex align-items-center gap-1" style="font-size: 0.72rem; font-weight: 500;">
-                                <small class="text-primary fw-bold" style="font-size: 0.65rem;">${s.platform}:</small> 
-                                ${displayValue}
+                            <span class="badge bg-body-secondary text-body border py-1 px-2 rounded-2 d-inline-flex align-items-center gap-1" 
+                                  style="font-size: 0.72rem; font-weight: 500; max-width: 100%; text-break: break-all; white-space: normal; text-align: left;">
+                                <small class="text-primary fw-bold" style="font-size: 0.65rem; flex-shrink: 0;">${s.platform}:</small> 
+                                <span class="text-break">${displayValue}</span>
                             </span>
                         `;
             }).join('')}
