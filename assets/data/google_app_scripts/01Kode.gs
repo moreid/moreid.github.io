@@ -9,10 +9,7 @@ function responseJSON(data) {
 
 function isValidToken(e) {
   var tokenDariHeader = e.headers ? e.headers["X-API-KEY"] : null;
-
-  // Cek token dari Query Parameter URL (Alternatif)
   var tokenDariParam = e.parameter.api_key;
-
   return (tokenDariHeader === API_KEY_RAHASIA || tokenDariParam === API_KEY_RAHASIA);
 }
 
@@ -29,6 +26,10 @@ function doGet(e) {
     // CONTOH REQ: ?table=users&id=1 (Ambil 1 user)
     if (id) {
       var data = db.table(table).find(id);
+      // Lakukan masking jika mengakses tabel scammervault
+      if (table === "scammervault" && data) {
+        data = maskScammerVaultRow(data);
+      }
       return responseJSON({ status: "success", data: data });
     }
 
@@ -36,17 +37,25 @@ function doGet(e) {
     if (table === "users" && action === "with_transactions") {
       var data = db.table("users").get({
         join: {
-          with: "transactions",    // join dengan tabel transactions
-          localKey: "id",          // id di tabel users
-          foreignKey: "user_id",   // user_id di tabel transactions
-          as: "transactions"       // nama field hasil join
+          with: "transactions",
+          localKey: "id",
+          foreignKey: "user_id",
+          as: "transactions"
         }
       });
       return responseJSON({ status: "success", data: data });
     }
 
-    // DEFAULT: Ambil semua data dari tabel yang di-request (?table=users atau ?table=transactions)
+    // DEFAULT: Ambil semua data dari tabel
     var data = db.table(table).get();
+
+    // PERBAIKAN BACKEND: Lakukan masking masal jika tabel adalah scammervault
+    if (table === "scammervault" && Array.isArray(data)) {
+      data = data.map(function (row) {
+        return maskScammerVaultRow(row);
+      });
+    }
+
     return responseJSON({ status: "success", data: data });
 
   } catch (err) {
@@ -71,41 +80,26 @@ function doPost(e) {
     var dbTable = db.table(table);
     var result;
 
-    // ==========================================
-    // KHUSUS INTEGRASI SCAMMERVAULT & GOOGLE DRIVE (MULTIPLE IMAGES)
-    // ==========================================
     if (table === "scammervault" && action === "insert") {
       var reportID = "SCAM-" + Date.now();
-
-      // 1. Ambil folder induk utama berdasarkan ID Anda
       const mainFolder = DriveApp.getFolderById(MAIN_FOLDER_ID);
 
-      // 2. Buat subfolder rapi khusus untuk kasus ini sejak awal
       var cleanFinName = payload.scam_financial ? payload.scam_financial.substring(0, 15).replace(/[^a-zA-Z0-9]/g, "_") : "Unknown";
       const subFolder = mainFolder.createFolder(`${reportID} - ${cleanFinName}`);
-
-      // 3. Atur izin akses subfolder agar bisa dilihat melalui link oleh sistem/publik
       subFolder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-      // --- AMBIL URL SUBFOLDER DI SINI ---
       var subFolderUrl = subFolder.getUrl();
 
-      // 4. Proses unggah banyak berkas ke dalam subfolder tersebut jika array images tersedia
       if (payload.images && payload.images.length > 0) {
         payload.images.forEach(function (img, index) {
           if (img.file_data && img.file_name) {
-            // Decode base64 bersih yang dikirim dari frontend
             var bytes = Utilities.base64Decode(img.file_data);
             var blob = Utilities.newBlob(bytes, "image/png", img.file_name);
-
-            // Simpan file langsung ke dalam subfolder yang baru dibuat
             subFolder.createFile(blob);
-            // Tidak perlu push file.getUrl() lagi ke array karena kita hanya butuh URL folder induknya
           }
         });
       }
 
-      // 5. Susun baris data bersih untuk disimpan ke tabel Google Sheets
       var cleanPayload = {
         report_id: reportID,
         pelapor_name: payload.pelapor_name || "Anonim",
@@ -115,16 +109,14 @@ function doPost(e) {
         scam_sosmed: payload.scam_sosmed || "-",
         nominal_loss: Number(payload.nominal_loss || 0),
         kronologi: payload.kronologi || "-",
-        evidence_url: subFolderUrl, // SEKARANG BERISI TAUTAN FOLDER KASUS YANG RAPI
+        evidence_url: subFolderUrl,
         created_at: new Date().toISOString()
       };
 
-      // Menggunakan SheetDB engine Anda untuk memasukkan data ke baris spreadsheet
       result = dbTable.insert(cleanPayload);
       return responseJSON({ status: "success", data: result });
     }
 
-    // --- Logika Tabel Bawaan Lainnya (Users, Products, DLL) ---
     if (action === "insert") {
       result = dbTable.insert(payload);
     } else if (action === "update") {
@@ -145,6 +137,98 @@ function doPost(e) {
 }
 
 function pemicuIzin() {
-  // Baris ini memaksa Google mendeteksi bahwa script ini butuh izin Drive
   DriveApp.getRootFolder();
+}
+
+// ==========================================
+// ENGINE MASKING & SENSOR DATA UTILIY (BACKEND)
+// ==========================================
+
+/**
+ * Memproses masking satu baris data scammervault
+ */
+function maskScammerVaultRow(row) {
+  if (!row) return row;
+
+  // 1. Sensor Nama Pelapor
+  if (row.pelapor_name) {
+    row.pelapor_name = maskBackendName(row.pelapor_name);
+  }
+
+  // 2. Sensor Kontak Pelapor (E.g., "85155092922" -> "8515****922")
+  if (row.pelapor_contact_val) {
+    row.pelapor_contact_val = maskBackendValue(String(row.pelapor_contact_val));
+  }
+
+  // 3. Sensor Informasi Internal Finansial / Rekening Pelaku (Opsional)
+  // Catatan: Sesuai logika scammervault.js Anda sebelumnya, masking rekening pelaku 
+  // juga bisa dilakukan di backend ini jika Anda tidak ingin menyertakan nomor aslinya ke browser.
+  if (row.scam_financial) {
+    row.scam_financial = maskBackendFinancial(row.scam_financial);
+  }
+
+  return row;
+}
+
+/**
+ * Sensor Nama (Contoh: "Andry Setyoso" -> "A****y S******o")
+ */
+function maskBackendName(name) {
+  if (!name || name.toLowerCase() === "anonim" || name === "-") return "Anonim";
+  var words = name.split(" ");
+  var maskedWords = words.map(function (word) {
+    if (word.length <= 2) return word;
+    return word[0] + "*".repeat(word.length - 2) + word[word.length - 1];
+  });
+  return maskedWords.join(" ");
+}
+
+/**
+ * Sensor Angka/Kontak (Contoh: "85155092922" -> "8515****922")
+ */
+function maskBackendValue(val) {
+  if (!val || val === "-") return "-";
+  var clean = val.trim();
+  if (clean.length <= 5) return "****";
+
+  var startLen = Math.floor(clean.length * 0.35); // Ambil 35% di awal
+  var endLen = Math.floor(clean.length * 0.25);   // Ambil 25% di akhir
+
+  var start = clean.substring(0, startLen);
+  var end = clean.substring(clean.length - endLen);
+  var mask = "*".repeat(clean.length - (startLen + endLen));
+
+  return start + mask + end;
+}
+
+/**
+ * Sensor Otomatis String Gabungan Finansial Pelaku di Backend
+ * Format asal: "[Bank] Sea Bank - 901702697082 (Anugerah Hyang Akbar lawan)"
+ * Hasil: "[Bank] Sea Bank - 9017****7082 (A******h H***g A***r l***n)"
+ */
+function maskBackendFinancial(finRaw) {
+  if (!finRaw || finRaw === "-") return finRaw;
+  try {
+    var typeMatch = finRaw.match(/^\[(.*?)\]/);
+    var type = typeMatch ? typeMatch[1] : "";
+
+    let cleanStr = finRaw.replace(/^\[.*?\]\s*/, '');
+
+    var holderMatch = cleanStr.match(/\(([^)]+)\)$/);
+    var holder = holderMatch ? holderMatch[1] : "";
+
+    cleanStr = cleanStr.replace(/\s*\([^)]+\)$/, '');
+
+    var parts = cleanStr.split("-");
+    var vendor = parts[0] ? parts[0].trim() : "";
+    var number = parts[1] ? parts[1].trim() : "";
+
+    // Lakukan Masking di Backend
+    var maskedNumber = maskBackendValue(number);
+    var maskedHolder = maskBackendName(holder);
+
+    return "[" + type + "] " + vendor + " - " + maskedNumber + " (" + maskedHolder + ")";
+  } catch (e) {
+    return finRaw; // Kembalikan data asli jika format rusak
+  }
 }

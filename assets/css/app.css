@@ -375,3 +375,23 @@ body {
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
+
+/* --- KRONOLOGI CLAMPING --- */
+.kronologi-text {
+    transition: all 0.3s ease;
+}
+
+/* Membatasi teks hanya tampil maksimal 3 baris secara default */
+.kronologi-text.text-collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Menghilangkan outline focus bawaan bootstrap pada tombol teks link */
+.btn-toggle-kronologi:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}

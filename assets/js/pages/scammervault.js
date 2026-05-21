@@ -24,18 +24,73 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchVaultData();
     initModalReport();
 
-    // Pencarian Real-Time (Filter) - Memperbaiki bug 'allReports' menjadi 'globalScammerData'
+    // Pencarian Real-Time (Filter) - Diperbarui agar bersahabat dengan data masking backend
+    // GANTI DENGAN BLOK KODE DI BAWAH INI:
     const searchInput = document.getElementById("vaultSearchInput");
-    if (searchInput) {
-        searchInput.addEventListener("input", (e) => {
-            const keyword = e.target.value.toLowerCase();
-            const filtered = globalScammerData.filter(item =>
-                String(item.scam_financial).toLowerCase().includes(keyword) ||
-                String(item.scam_sosmed).toLowerCase().includes(keyword) ||
-                String(item.kronologi).toLowerCase().includes(keyword)
-            );
-            // Ambil 5 laporan teratas hasil filter
-            renderReports(filtered.slice(0, 5));
+    const searchButton = document.getElementById("vaultSearchBtn");
+
+    // Fungsi utama untuk mengeksekusi pencarian ke backend
+    async function performSearch() {
+        const keyword = searchInput.value.toLowerCase().trim();
+        const container = document.getElementById("recentReportsContainer");
+
+        // Jika kolom pencarian kosong, kembalikan ke data awal (5 terbaru dari memori lokal)
+        if (keyword.length === 0) {
+            const recentData = [...globalScammerData].reverse().slice(0, 5);
+            renderReports(recentData);
+            return;
+        }
+
+        // Jalankan pencarian langsung ke database via API Proxy Worker
+        try {
+            if (container) container.innerHTML = `<div class="text-center py-3 small text-muted">Mencari di database...</div>`;
+
+            const response = await fetch(`${API_URL}?table=scammervault&search=${encodeURIComponent(keyword)}`);
+            const res = await response.json();
+
+            if (res.status === 'success') {
+                // Render hasil pencarian dari backend
+                renderReports(res.data || []);
+            }
+        } catch (err) {
+            console.error("Search Error:", err.message);
+            if (container) {
+                container.innerHTML = `<div class="text-center text-danger py-3 small">Gagal melakukan pencarian.</div>`;
+            }
+        }
+    }
+
+    // Jalankan fungsi saat tombol "Cari" di-klik
+    if (searchButton && searchInput) {
+        searchButton.addEventListener("click", performSearch);
+
+        // Jalankan juga fungsi saat user menekan tombol 'Enter' di dalam input field
+        searchInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                performSearch();
+            }
+        });
+    }
+
+    // ==========================================
+    // Event Delegation untuk Tombol Selengkapnya (Kronologi)
+    // ==========================================
+    const reportsContainer = document.getElementById("recentReportsContainer");
+    if (reportsContainer) {
+        reportsContainer.addEventListener("click", (e) => {
+            if (e.target.classList.contains("btn-toggle-kronologi")) {
+                const btn = e.target;
+                // Cari elemen <p> kronologi yang berada tepat di atas atau dalam satu container
+                const targetText = btn.closest(".text-kronologi-container").querySelector(".kronologi-text");
+
+                if (targetText.classList.contains("text-collapsed")) {
+                    targetText.classList.remove("text-collapsed");
+                    btn.innerText = "Sembunyikan";
+                } else {
+                    targetText.classList.add("text-collapsed");
+                    btn.innerText = "Selengkapnya...";
+                }
+            }
         });
     }
 });
@@ -91,59 +146,43 @@ async function fetchVaultData() {
 }
 
 // ==========================================
-// HELPER FOR MASKING & PARSING DATA
+// HELPER FOR PARSING DATA & FRONTEND MASKING
 // ==========================================
-
-// Fungsi mask untuk nama (e.g., "John Doe" -> "J***n D**e" atau "Penipu" -> "P****u")
-function maskText(text) {
-    if (!text || text === '-' || text.toLowerCase() === 'unknown') return text;
-    const words = text.split(' ');
-    const maskedWords = words.map(word => {
-        if (word.length <= 2) return word;
-        return word[0] + '*'.repeat(word.length - 2) + word[word.length - 1];
-    });
-    return maskedWords.join(' ');
-}
-
-// Fungsi mask untuk nomor rekening / nomor HP (e.g., "1234567890" -> "1234****90")
-function maskAccountNumber(number) {
-    if (!number || number === '-') return number;
-    const cleanNum = number.trim();
-    if (cleanNum.length <= 4) return '****';
-    const visibleLength = Math.ceil(cleanNum.length * 0.3); // Tampilkan ~30% di awal dan akhir
-    const start = cleanNum.substring(0, visibleLength);
-    const end = cleanNum.substring(cleanNum.length - visibleLength);
-    const mask = '*'.repeat(cleanNum.length - (visibleLength * 2));
-    return `${start}${mask}${end}`;
-}
 
 function isPhoneNumber(str) {
     const clean = str.replace(/[^0-9+]/g, '');
     return clean.length >= 8 && /^[0-9+]+$/.test(clean);
 }
 
+// Fungsi mask lokal pendukung khusus nomor hp medsos pelaku yang belum di-mask backend
+function maskSosmedPhone(number) {
+    if (!number || number === '-') return number;
+    const cleanNum = number.trim();
+    if (cleanNum.length <= 4) return '****';
+    const visibleLength = Math.ceil(cleanNum.length * 0.3);
+    const start = cleanNum.substring(0, visibleLength);
+    const end = cleanNum.substring(cleanNum.length - visibleLength);
+    const mask = '*'.repeat(cleanNum.length - (visibleLength * 2));
+    return `${start}${mask}${end}`;
+}
+
 // Fungsi pembantu untuk memecah data finansial yang digabung dari DB
-// Format asal: "[Bank] BCA - 1234567890 (Nama Pemilik)"
+// Format asal dari backend: "[Bank] Sea Bank - 9017****7082 (A******h H***g Akbar lawan)"
 function parseFinancialData(finRaw) {
     const defaultData = { type: '-', vendor: '-', number: '-', holder: '-' };
     if (!finRaw || finRaw === '-') return defaultData;
 
     try {
-        // Ambil tipe dari dalam kurung siku [...]
         const typeMatch = finRaw.match(/^\[(.*?)\]/);
         const type = typeMatch ? typeMatch[1] : '-';
 
-        // Hapus bagian tipe dari string utama
         let cleanStr = finRaw.replace(/^\[.*?\]\s*/, '');
 
-        // Ambil nama pemilik di dalam kurung terakhir (...)
         const holderMatch = cleanStr.match(/\(([^)]+)\)$/);
         const holder = holderMatch ? holderMatch[1] : '-';
 
-        // Hapus bagian holder dari string
         cleanStr = cleanStr.replace(/\s*\([^)]+\)$/, '');
 
-        // Sisa string dipecah berdasarkan tanda "-" untuk mendapatkan Vendor dan Nomor
         const parts = cleanStr.split('-');
         const vendor = parts[0] ? parts[0].trim() : '-';
         const number = parts[1] ? parts[1].trim() : '-';
@@ -164,12 +203,8 @@ function renderReports(data) {
     }
 
     container.innerHTML = data.map(item => {
-        // Parsing data finansial terstruktur
+        // Parsing data finansial terstruktur (Data di bawah ini sudah dalam kondisi ter-masking dari backend)
         const fin = parseFinancialData(item.scam_financial);
-
-        // Terapkan Masking di Frontend
-        const maskedHolder = maskText(fin.holder);
-        const maskedNumber = maskAccountNumber(fin.number);
 
         // Render List Media Sosial
         const sosmedListHtml = formatSosmedToList(item.scam_sosmed);
@@ -177,7 +212,6 @@ function renderReports(data) {
         return `
             <div class="card shadow-sm rounded-3 mb-2" style="border-left: 4px solid #e74c3c !important; background: var(--bs-body-bg);">
                 <div class="card-body p-3">
-                    <!-- Header Card -->
                     <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom border-translucent">
                         <div>
                             <span class="badge bg-danger-subtle text-danger fw-bold me-1" style="font-size: 0.75rem;">${fin.type}</span>
@@ -188,13 +222,12 @@ function renderReports(data) {
                         </span>
                     </div>
                     
-                    <!-- Konten Finansial & Kerugian -->
                     <div class="row g-2 mb-3">
                         <div class="col-7">
                             <div class="text-muted opacity-75" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Akun Finansial</div>
                             <div class="fw-bold text-body mb-0" style="font-size: 0.9rem;">${fin.vendor}</div>
-                            <div class="font-monospace text-secondary small text-break">${maskedNumber}</div>
-                            <div class="small text-muted text-truncate">A/N: <span class="fw-medium">${maskedHolder}</span></div>
+                            <div class="font-monospace text-secondary small text-break">${fin.number}</div>
+                            <div class="small text-muted text-truncate">A/N: <span class="fw-medium">${fin.holder}</span></div>
                         </div>
                         <div class="col-5 text-end border-start border-translucent ps-2">
                             <div class="text-muted opacity-75" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Total Kerugian</div>
@@ -204,21 +237,21 @@ function renderReports(data) {
                         </div>
                     </div>
                     
-                    <!-- List Media Sosial / Kontak Pelaku -->
                     <div class="mb-3 p-2 bg-light rounded-2 border border-translucent">
                         <div class="text-muted opacity-75 mb-1" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Kontak / Medsos Terkait:</div>
                         ${sosmedListHtml}
                     </div>
                     
-                    <!-- Kronologi Singkat -->
-                    <div class="mt-2">
+                    <div class="mt-2 text-kronologi-container">
                         <div class="text-muted opacity-75" style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase;">Kronologi Kasus:</div>
-                        <p class="small text-secondary mb-2 lh-base" style="font-size:0.8rem; text-align: justify;">
+                        <p class="small text-secondary mb-1 lh-base text-collapsed kronologi-text" style="font-size:0.8rem; text-align: justify;">
                             ${item.kronologi || 'Tidak ada keterangan kronologi.'}
                         </p>
+                        <button type="button" class="btn p-0 border-0 text-primary fw-medium btn-toggle-kronologi d-none" style="font-size: 0.75rem; box-shadow: none;">
+                            Selengkapnya...
+                        </button>
                     </div>
                     
-                    <!-- Tombol Bukti Fisik -->
                     ${item.evidence_url ? `
                         <div class="d-flex justify-content-end border-top border-translucent pt-2 mt-2">
                             <a href="${item.evidence_url}" target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-3 rounded-2" style="font-size:0.75rem; fw-medium">
@@ -230,6 +263,26 @@ function renderReports(data) {
             </div>
         `;
     }).join('');
+
+    checkKronologiOverflow();
+}
+
+// Helper untuk mendeteksi otomatis apakah teks kronologi melebihi batas baris CSS
+function checkKronologiOverflow() {
+    const containers = document.querySelectorAll(".text-kronologi-container");
+    containers.forEach(container => {
+        const textEl = container.querySelector(".kronologi-text");
+        const btnEl = container.querySelector(".btn-toggle-kronologi");
+        
+        if (textEl && btnEl) {
+            // Jika tinggi kontainer teks asli lebih besar dari tinggi tampilannya (terpotong)
+            if (textEl.scrollHeight > textEl.clientHeight) {
+                btnEl.classList.remove("d-none"); // Tampilkan tombol
+            } else {
+                btnEl.classList.add("d-none");    // Tetap sembunyikan jika teks muat
+            }
+        }
+    });
 }
 
 // Helper untuk merubah data sosmed JSON menjadi baris list vertical yang rapi jika banyak
@@ -240,16 +293,14 @@ function formatSosmedToList(sosmedRaw) {
             return `
                 <div class="d-flex flex-wrap gap-1 mt-1">
                     ${arr.map(s => {
-                // Logika Masking: 
-                // Jika platform bukan "Website" dan isinya terdeteksi nomor telepon, maka mask
                 let displayValue = s.username;
                 const isPhone = isPhoneNumber(s.username);
 
+                // Masking lokal nomor WhatsApp pelaku tetap dipertahankan disini
                 if (s.platform !== 'Website' && s.platform !== 'Facebook' && isPhone) {
-                    displayValue = maskAccountNumber(s.username);
+                    displayValue = maskSosmedPhone(s.username);
                 }
 
-                // PERBAIKAN: Menambahkan max-width dan text-break agar tidak menjebol layar HP
                 return `
                             <span class="badge bg-body-secondary text-body border py-1 px-2 rounded-2 d-inline-flex align-items-center gap-1" 
                                   style="font-size: 0.72rem; font-weight: 500; max-width: 100%; text-break: break-all; white-space: normal; text-align: left;">
@@ -298,12 +349,10 @@ function initModalReport() {
 
     if (!finAccountType) return;
 
-    // EVENT: PERUBAHAN UTAMA TIPE AKUN FINANSIAL
     finAccountType.addEventListener("change", function () {
         const tipe = this.value;
         dynamicFinFields.classList.remove("d-none");
 
-        // Reset visibility & HTML5 Validation
         groupBankEwallet.classList.add("d-none");
         groupCrypto.classList.add("d-none");
         finVendorSelect.required = false;
@@ -329,7 +378,6 @@ function initModalReport() {
         }
     });
 
-    // EVENT: JIKA PILIH "LAINNYA" PADA VENDOR BANK / EWALLET
     finVendorSelect.addEventListener("change", function () {
         if (this.value === "Lainnya") {
             groupFinLainnya.classList.remove("d-none");
@@ -340,7 +388,6 @@ function initModalReport() {
         }
     });
 
-    // EVENT: PERUBAHAN METODE CRYPTO (ADDRESS VS UID)
     cryptoMethodSelect.addEventListener("change", function () {
         if (this.value === "UID") {
             lblCryptoValue.innerText = "Nomor UID Akun Pelaku";
@@ -356,7 +403,6 @@ function initModalReport() {
         }
     });
 
-    // EVENT: JIKA PILIH EXCHANGE "LAINNYA" PADA CRYPTO UID
     cryptoExchangeSelect.addEventListener("change", function () {
         if (this.value === "Lainnya" && cryptoMethodSelect.value === "UID") {
             groupExchangeLainnya.classList.remove("d-none");
@@ -367,7 +413,6 @@ function initModalReport() {
         }
     });
 
-    // EVENT: TAMBAH FORM SOSMED DINAMIS
     addSosmedBtn.addEventListener("click", () => {
         const newRow = document.createElement("div");
         newRow.className = "row g-2 mb-2 sosmed-row";
@@ -391,7 +436,6 @@ function initModalReport() {
         toggleRemoveButtons(sosmedContainer);
     });
 
-    // EVENT DELEGATION: HAPUS SOSMED
     sosmedContainer.addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-sosmed-btn")) {
             e.target.closest(".sosmed-row").remove();
@@ -399,7 +443,6 @@ function initModalReport() {
         }
     });
 
-    // EVENT: SUBMIT FORM LAPORAN
     reportForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const submitBtn = document.getElementById("submitReportBtn");
@@ -407,7 +450,6 @@ function initModalReport() {
         submitBtn.disabled = true;
         submitBtn.innerText = "Memproses Berkas Bukti & Mengunggah Laporan...";
 
-        // 1. Ambil Nilai Input Media Sosial Dinamis
         const sosmedRows = sosmedContainer.querySelectorAll(".sosmed-row");
         const sosmedArray = [];
         sosmedRows.forEach(row => {
@@ -418,7 +460,6 @@ function initModalReport() {
             }
         });
 
-        // 2. Ambil Seluruh Gambar Terpilih (Multiple Image Loop)
         const fileInputList = document.getElementById("reportScamFile").files;
         const imagesArray = [];
         try {
@@ -438,7 +479,6 @@ function initModalReport() {
             return;
         }
 
-        // 3. Rekonstruksi & Ambil Nilai Finansial Pelaku (Menghindari bug reportScamFin)
         let scamFinancialFormatted = "";
         const tipeFin = finAccountType.value;
 
@@ -455,7 +495,6 @@ function initModalReport() {
             }
         }
 
-        // 4. Susun Payload Akhir
         const payload = {
             pelapor_name: document.getElementById("reportPelaporName").value.trim(),
             pelapor_contact_type: document.getElementById("reportPelaporType").value,
@@ -467,7 +506,6 @@ function initModalReport() {
             images: imagesArray
         };
 
-        // 5. Kirim HTTP POST ke Proxy Server Cloud
         try {
             const response = await fetch(`${API_URL}?table=scammervault&action=insert`, {
                 method: "POST",
@@ -490,7 +528,6 @@ function initModalReport() {
     });
 }
 
-// Helper: Manajemen tombol hapus sosmed dinamis
 function toggleRemoveButtons(container) {
     const rows = container.querySelectorAll(".sosmed-row");
     rows.forEach(row => {
@@ -499,13 +536,11 @@ function toggleRemoveButtons(container) {
     });
 }
 
-// Helper: Reset tombol submit jika proses gagal
 function resetSubmitButton(btn) {
     btn.disabled = false;
     btn.innerText = "KIRIM LAPORAN ADUAN";
 }
 
-// Helper: Menghasilkan String Base64 murni dari File input
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
