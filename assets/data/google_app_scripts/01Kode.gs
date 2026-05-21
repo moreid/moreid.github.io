@@ -20,10 +20,11 @@ function doGet(e) {
     var table = e.parameter.table;
     var id = e.parameter.id;
     var action = e.parameter.action;
+    var searchKeyword = e.parameter.search;
 
     if (!table) return responseJSON({ error: "Parameter 'table' dibutuhkan." });
 
-    // CONTOH REQ: ?table=users&id=1 (Ambil 1 user)
+    // 1. AMBIL SATU DATA BERDASARKAN ID (?table=users&id=1)
     if (id) {
       var data = db.table(table).find(id);
       // Lakukan masking jika mengakses tabel scammervault
@@ -33,7 +34,7 @@ function doGet(e) {
       return responseJSON({ status: "success", data: data });
     }
 
-    // CONTOH JOIN REQ: ?table=users&action=with_transactions
+    // 2. CONTOH JOIN REQ: ?table=users&action=with_transactions
     if (table === "users" && action === "with_transactions") {
       var data = db.table("users").get({
         join: {
@@ -46,10 +47,29 @@ function doGet(e) {
       return responseJSON({ status: "success", data: data });
     }
 
-    // DEFAULT: Ambil semua data dari tabel
-    var data = db.table(table).get();
+    // 3. LOGIKA UTAMA PENCARIAN / FILTER DATA TERSANGKA
+    var data;
+    if (table === "scammervault" && searchKeyword) {
+      // Ambil seluruh data dari sheet terlebih dahulu
+      var allData = db.table(table).get();
+      var keyword = searchKeyword.toLowerCase().trim();
 
-    // PERBAIKAN BACKEND: Lakukan masking masal jika tabel adalah scammervault
+      // Filter ketat: Hanya cari kecocokan data pada kolom pelaku/kasus
+      data = allData.filter(function (row) {
+        var matchFinancial = row.scam_financial ? String(row.scam_financial).toLowerCase().indexOf(keyword) !== -1 : false;
+        var matchSosmed = row.scam_sosmed ? String(row.scam_sosmed).toLowerCase().indexOf(keyword) !== -1 : false;
+        var matchReportID = row.report_id ? String(row.report_id).toLowerCase().indexOf(keyword) !== -1 : false;
+        var matchKronologi = row.kronologi ? String(row.kronologi).toLowerCase().indexOf(keyword) !== -1 : false;
+
+        // SELEKSI: Return true HANYA jika keyword ada di data pelaku (mengabaikan nomor/kontak pelapor)
+        return matchFinancial || matchSosmed || matchReportID || matchKronologi;
+      });
+    } else {
+      // Jika tidak ada parameter pencarian spesifik, ambil semua data (default)
+      data = db.table(table).get();
+    }
+
+    // 4. PROSES MASKING MASAL (Hanya berlaku untuk tabel scammervault)
     if (table === "scammervault" && Array.isArray(data)) {
       data = data.map(function (row) {
         return maskScammerVaultRow(row);
@@ -160,9 +180,7 @@ function maskScammerVaultRow(row) {
     row.pelapor_contact_val = maskBackendValue(String(row.pelapor_contact_val));
   }
 
-  // 3. Sensor Informasi Internal Finansial / Rekening Pelaku (Opsional)
-  // Catatan: Sesuai logika scammervault.js Anda sebelumnya, masking rekening pelaku 
-  // juga bisa dilakukan di backend ini jika Anda tidak ingin menyertakan nomor aslinya ke browser.
+  // 3. Sensor Informasi Internal Finansial / Rekening Pelaku
   if (row.scam_financial) {
     row.scam_financial = maskBackendFinancial(row.scam_financial);
   }
