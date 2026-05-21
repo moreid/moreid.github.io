@@ -348,7 +348,7 @@ function initModalReport() {
             groupCryptoUidOpt.classList.remove("d-none");
             cryptoExchangeSelect.dispatchEvent(new Event("change"));
         } else {
-            lblCryptoValue.innerText = "Alamat Wallet Address (Crypto Address)";
+            lblCryptoValue.innerText = "Alamat Wallet";
             cryptoValueInput.placeholder = "Contoh: TR7NHqjeCpJV... (TRC20)";
             groupCryptoUidOpt.classList.add("d-none");
             groupExchangeLainnya.classList.add("d-none");
