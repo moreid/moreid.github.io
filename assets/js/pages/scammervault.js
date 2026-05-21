@@ -13,8 +13,21 @@ const db = new SheetDBClient(API_URL, null);
 // State Global untuk menyimpan data katalog sementara
 let globalScammerData = [];
 
-const daftarBank = ["BCA", "Mandiri", "BRI", "BNI", "BSI", "CIMB Niaga", "Permata", "Bank Jago", "Allo Bank", "Lainnya"];
+const daftarBank = ["BCA", "Mandiri", "BRI", "BNI", "BSI", "CIMB Niaga", "Permata", "Bank Jago", "Allo Bank", "Sea Bank", "Lainnya"];
 const daftarEwallet = ["Dana", "Ovo", "GoPay", "LinkAja", "ShopeePay", "Doku", "Lainnya"];
+
+// Helper untuk mengecek apakah user saat ini adalah admin terautentikasi
+function isCurrentUserAdmin() {
+    const session = localStorage.getItem('user_session');
+    if (!session) return false;
+    try {
+        const user = JSON.parse(session);
+        // Sesuaikan validasi property di bawah ini dengan struktur session/payload login Anda (misal: role === 'admin' atau isAdmin === true)
+        return user && (user.role === 'admin' || user.username.toLowerCase() === 'admin');
+    } catch (e) {
+        return false;
+    }
+}
 
 // ==========================================
 // INISIALISASI UTAMA (DOM CONTENT LOADED)
@@ -25,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initModalReport();
 
     // Pencarian Real-Time (Filter) - Diperbarui agar bersahabat dengan data masking backend
-    // GANTI DENGAN BLOK KODE DI BAWAH INI:
     const searchInput = document.getElementById("vaultSearchInput");
     const searchButton = document.getElementById("vaultSearchBtn");
 
@@ -43,19 +55,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Jalankan pencarian langsung ke database via API Proxy Worker
         try {
-            if (container) container.innerHTML = `<div class="text-center py-3 small text-muted">Mencari di database...</div>`;
+            if (container) {
+                // MENAMPILKAN SPINNER SAAT PROSES MENCARI DATA
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-success" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
+                        <div class="small text-muted mt-2 opacity-75">Mencari di database laporan...</div>
+                    </div>
+                `;
+            }
 
             const response = await fetch(`${API_URL}?table=scammervault&search=${encodeURIComponent(keyword)}`);
             const res = await response.json();
 
             if (res.status === 'success') {
-                // Render hasil pencarian dari backend
+                // Render hasil pencarian dari backend (otomatis menimpa/menghapus spinner di atas)
                 renderReports(res.data || []);
             }
         } catch (err) {
             console.error("Search Error:", err.message);
             if (container) {
-                container.innerHTML = `<div class="text-center text-danger py-3 small">Gagal melakukan pencarian.</div>`;
+                container.innerHTML = `<div class="text-center text-danger py-4 small">Gagal melakukan pencarian data.</div>`;
             }
         }
     }
@@ -198,7 +218,7 @@ function renderReports(data) {
     if (!container) return;
 
     if (data.length === 0) {
-        container.innerHTML = `<div class="text-center py-4 opacity-50 small">Tidak ada kecocokan data laporan.</div>`;
+        container.innerHTML = `<div class="text-center py-4 opacity-50 small">Belum ada laporan untuk data tersebut.</div>`;
         return;
     }
 
@@ -227,7 +247,7 @@ function renderReports(data) {
                             <div class="text-muted opacity-75" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Akun Finansial</div>
                             <div class="fw-bold text-body mb-0" style="font-size: 0.9rem;">${fin.vendor}</div>
                             <div class="font-monospace text-secondary small text-break">${fin.number}</div>
-                            <div class="small text-muted text-truncate">A/N: <span class="fw-medium">${fin.holder}</span></div>
+                            <div class="small text-muted text-truncate"><span class="fw-medium">${fin.holder}</span></div>
                         </div>
                         <div class="col-5 text-end border-start border-translucent ps-2">
                             <div class="text-muted opacity-75" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;">Total Kerugian</div>
@@ -273,7 +293,7 @@ function checkKronologiOverflow() {
     containers.forEach(container => {
         const textEl = container.querySelector(".kronologi-text");
         const btnEl = container.querySelector(".btn-toggle-kronologi");
-        
+
         if (textEl && btnEl) {
             // Jika tinggi kontainer teks asli lebih besar dari tinggi tampilannya (terpotong)
             if (textEl.scrollHeight > textEl.clientHeight) {
