@@ -7,12 +7,15 @@
     --profile-glow: rgba(99, 102, 241, 0.15);
     --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
     --card-shadow-hover: 0 14px 40px rgba(99, 102, 241, 0.08);
-    --bs-body-color: #212529
+    --bs-body-color: #212529;
+    /* Data URI SVG Vector Paths */
+    --svg-whatsapp: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12.004 2C6.48 2 2 6.48 2 12.004c0 1.848.502 3.578 1.378 5.067L2 22l5.093-1.336A9.957 9.957 0 0012.004 22c5.523 0 10.004-4.48 10.004-10.004C22.008 6.48 17.527 2 12.004 2zm5.727 14.126c-.244.69-1.218 1.253-1.688 1.294-.47.04-1.054.195-3.32-.743-2.903-1.2-4.733-4.14-4.88-4.333-.146-.193-1.185-1.574-1.185-3.003 0-1.43.748-2.133 1.014-2.413.267-.28.583-.348.777-.348.195 0 .388.003.557.01.176.008.412-.066.643.491.24.577.818 1.996.889 2.14.07.145.118.313.02.507-.097.193-.146.313-.292.483-.145.17-.306.38-.437.51-.146.146-.3.305-.129.598.17.292.757 1.246 1.624 2.016.945.839 1.743 1.096 1.987 1.218.243.122.388.102.533-.066.145-.17.625-.727.794-.975.17-.247.339-.207.57-.122.23.085 1.464.69 1.714.815.25.125.417.186.478.292.06.105.06.61-.184 1.301z' fill='%2325D366'/%3E%3C/svg%3E");
+    --svg-telegram: url("data:image/svg+xml,%3Csvg fill='%2324a1de' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 0c5.523 0 10 4.477 10 10s-4.477 10-10 10S0 15.523 0 10 4.477 0 10 0m4.442 6c-.381.007-.966.207-3.779 1.362a485 485 0 0 0-5.907 2.512q-.72.283-.753.553c-.044.346.46.453 1.094.657.517.166 1.213.36 1.575.368q.492.01 1.098-.4 4.139-2.76 4.273-2.789c.063-.014.15-.032.21.02.059.052.053.15.046.177-.05.211-2.641 2.538-2.79 2.691l-.072.072c-.55.543-1.105.898-.147 1.521.866.563 1.37.922 2.26 1.5.57.368 1.017.805 1.605.752.271-.025.55-.276.693-1.026.335-1.77.995-5.608 1.147-7.19a1.7 1.7 0 0 0-.017-.393.42.42 0 0 0-.144-.27c-.121-.098-.309-.118-.392-.117'/%3E%3C/svg%3E");
+    --svg-facebook: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' fill='none'%3E%3Cpath fill='%231877f2' d='M15 8a7 7 0 0 0-7-7 7 7 0 0 0-1.094 13.915v-4.892H5.13V8h1.777V6.458c0-1.754 1.045-2.724 2.644-2.724.766 0 1.567.137 1.567.137v1.723h-.883c-.87 0-1.14.54-1.14 1.093V8h1.941l-.31 2.023H9.094v4.892A7 7 0 0 0 15 8'/%3E%3Cpath d='M10.725 10.023 11.035 8H9.094V6.687c0-.553.27-1.093 1.14-1.093h.883V3.87s-.801-.137-1.567-.137c-1.6 0-2.644.97-2.644 2.724V8H5.13v2.023h1.777v4.892a7 7 0 0 0 2.188 0v-4.892z'/%3E%3C/svg%3E");
+    --svg-instagram: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z'/%3E%3C/svg%3E");
+    --svg-tiktok: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.05 1.62 4.2 1.22 1.31 2.97 2.05 4.79 2.27v4.14c-1.78-.05-3.54-.56-5.05-1.52-.16-.1-.31-.21-.46-.32v6.49c-.06 3.32-2.11 6.38-5.29 7.37-3.48 1.13-7.46-.42-9.15-3.66-1.92-3.54-.42-8.21 3.36-9.84.97-.43 2.03-.6 3.09-.52v4.06c-.63-.06-1.27.04-1.85.31-1.29.58-1.99 2.1-1.6 3.48.35 1.34 1.7 2.23 3.08 2.01 1.36-.16 2.39-1.34 2.39-2.72V0h1.15z'/%3E%3C/svg%3E");
+    --svg-website: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z'/%3E%3C/svg%3E");
 }
-
-
-
-
 
 [data-bs-theme="dark"] {
     /* Dark Premium Theme (Deep Slate Tech) */
@@ -394,4 +397,65 @@ body {
 .btn-toggle-kronologi:focus {
     outline: none !important;
     box-shadow: none !important;
+}
+
+/* Base Engine Mask Ikon Modern */
+.icon-medsos {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: currentColor;
+    /* Mengikuti warna teks induk secara dinamis */
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    vertical-align: middle;
+}
+
+/* Map Platform ke Aset SVG */
+.icon-whatsapp {
+    -webkit-mask-image: var(--svg-whatsapp);
+    mask-image: var(--svg-whatsapp);
+    color: #25D366 !important;
+}
+
+.icon-telegram {
+    -webkit-mask-image: var(--svg-telegram);
+    mask-image: var(--svg-telegram);
+    color: #0088cc !important;
+}
+
+.icon-facebook {
+    -webkit-mask-image: var(--svg-facebook);
+    mask-image: var(--svg-facebook);
+    color: #1877F2 !important;
+}
+
+.icon-instagram {
+    -webkit-mask-image: var(--svg-instagram);
+    mask-image: var(--svg-instagram);
+    color: #E1306C !important;
+}
+
+.icon-tiktok {
+    -webkit-mask-image: var(--svg-tiktok);
+    mask-image: var(--svg-tiktok);
+    color: var(--bs-body-color) !important;
+}
+
+.icon-website {
+    -webkit-mask-image: var(--svg-website);
+    mask-image: var(--svg-website);
+    color: #1abc9c !important;
+}
+
+/* Penyesuaian khusus untuk versi Link Card Halaman Utama (Agar ukurannya pas) */
+.link-card .icon-medsos {
+    width: 22px;
+    height: 22px;
+    margin-right: 14px;
+    flex-shrink: 0;
 }

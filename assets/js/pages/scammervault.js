@@ -13,7 +13,7 @@ const db = new SheetDBClient(API_URL, null);
 // State Global untuk menyimpan data katalog sementara
 let globalScammerData = [];
 
-const daftarBank = ["BCA", "Mandiri", "BRI", "BNI", "BSI", "CIMB Niaga", "Permata", "Bank Jago", "Allo Bank", "Sea Bank", "Lainnya"];
+const daftarBank = ["BCA", "Mandiri", "BRI", "BNI", "BSI", "CIMB Niaga", "Permata", "Bank Jago", "Allo Bank", "Lainnya"];
 const daftarEwallet = ["Dana", "Ovo", "GoPay", "LinkAja", "ShopeePay", "Doku", "Lainnya"];
 
 // Helper untuk mengecek apakah user saat ini adalah admin terautentikasi
@@ -93,14 +93,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // Event Delegation untuk Tombol Selengkapnya (Kronologi)
+    // Event Delegation Kontainer Laporan (Kronologi & Tombol Bukti)
     // ==========================================
     const reportsContainer = document.getElementById("recentReportsContainer");
     if (reportsContainer) {
         reportsContainer.addEventListener("click", (e) => {
+            // 1. Logika Klik Tombol Selengkapnya (Kronologi)
             if (e.target.classList.contains("btn-toggle-kronologi")) {
                 const btn = e.target;
-                // Cari elemen <p> kronologi yang berada tepat di atas atau dalam satu container
                 const targetText = btn.closest(".text-kronologi-container").querySelector(".kronologi-text");
 
                 if (targetText.classList.contains("text-collapsed")) {
@@ -109,6 +109,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     targetText.classList.add("text-collapsed");
                     btn.innerText = "Selengkapnya...";
+                }
+            }
+
+            // 2. Logika Proteksi Tombol Bukti Dokumen/Foto
+            if (e.target.classList.contains("btn-evidence-vault")) {
+                const isAdmin = isCurrentUserAdmin();
+
+                // Jika bukan admin, cegah link terbuka dan munculkan modal kontak admin
+                if (!isAdmin) {
+                    e.preventDefault();
+
+                    // Inisialisasi dan panggil Modal Kontak Admin Bootstrap
+                    const adminContactModalEl = document.getElementById("adminContactModal");
+                    if (adminContactModalEl) {
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(adminContactModalEl);
+                        modalInstance.show();
+                    } else {
+                        alert("Akses Terbatas! Silakan hubungi administrator untuk melihat berkas bukti asli.");
+                    }
                 }
             }
         });
@@ -174,7 +193,6 @@ function isPhoneNumber(str) {
     return clean.length >= 8 && /^[0-9+]+$/.test(clean);
 }
 
-// Fungsi mask lokal pendukung khusus nomor hp medsos pelaku yang belum di-mask backend
 function maskSosmedPhone(number) {
     if (!number || number === '-') return number;
     const cleanNum = number.trim();
@@ -186,8 +204,6 @@ function maskSosmedPhone(number) {
     return `${start}${mask}${end}`;
 }
 
-// Fungsi pembantu untuk memecah data finansial yang digabung dari DB
-// Format asal dari backend: "[Bank] Sea Bank - 9017****7082 (A******h H***g Akbar lawan)"
 function parseFinancialData(finRaw) {
     const defaultData = { type: '-', vendor: '-', number: '-', holder: '-' };
     if (!finRaw || finRaw === '-') return defaultData;
@@ -223,11 +239,13 @@ function renderReports(data) {
     }
 
     container.innerHTML = data.map(item => {
-        // Parsing data finansial terstruktur (Data di bawah ini sudah dalam kondisi ter-masking dari backend)
         const fin = parseFinancialData(item.scam_financial);
-
-        // Render List Media Sosial
         const sosmedListHtml = formatSosmedToList(item.scam_sosmed);
+
+        // Berikan badge gembok (🔒) jika yang melihat bukan admin sebagai petunjuk visual interaktif
+        const adminLogged = isCurrentUserAdmin();
+        const buttonLabel = adminLogged ? "📁 Lihat Bukti Dokumen / Foto" : "🔒 Lihat Bukti Dokumen";
+        const buttonClass = adminLogged ? "btn-outline-secondary" : "btn-outline-warning text-dark";
 
         return `
             <div class="card shadow-sm rounded-3 mb-2" style="border-left: 4px solid #e74c3c !important; background: var(--bs-body-bg);">
@@ -274,8 +292,8 @@ function renderReports(data) {
                     
                     ${item.evidence_url ? `
                         <div class="d-flex justify-content-end border-top border-translucent pt-2 mt-2">
-                            <a href="${item.evidence_url}" target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-3 rounded-2" style="font-size:0.75rem; fw-medium">
-                                📁 Lihat Bukti Dokumen / Foto
+                            <a href="${item.evidence_url}" target="_blank" class="btn btn-sm ${buttonClass} py-1 px-3 rounded-2 btn-evidence-vault" style="font-size:0.75rem; font-weight: 500;">
+                                ${buttonLabel}
                             </a>
                         </div>
                     ` : ''}
@@ -295,11 +313,10 @@ function checkKronologiOverflow() {
         const btnEl = container.querySelector(".btn-toggle-kronologi");
 
         if (textEl && btnEl) {
-            // Jika tinggi kontainer teks asli lebih besar dari tinggi tampilannya (terpotong)
             if (textEl.scrollHeight > textEl.clientHeight) {
-                btnEl.classList.remove("d-none"); // Tampilkan tombol
+                btnEl.classList.remove("d-none");
             } else {
-                btnEl.classList.add("d-none");    // Tetap sembunyikan jika teks muat
+                btnEl.classList.add("d-none");
             }
         }
     });
@@ -316,7 +333,6 @@ function formatSosmedToList(sosmedRaw) {
                 let displayValue = s.username;
                 const isPhone = isPhoneNumber(s.username);
 
-                // Masking lokal nomor WhatsApp pelaku tetap dipertahankan disini
                 if (s.platform !== 'Website' && s.platform !== 'Facebook' && isPhone) {
                     displayValue = maskSosmedPhone(s.username);
                 }
@@ -556,11 +572,13 @@ function toggleRemoveButtons(container) {
     });
 }
 
+// Helper: Reset tombol submit jika proses gagal
 function resetSubmitButton(btn) {
     btn.disabled = false;
     btn.innerText = "KIRIM LAPORAN ADUAN";
 }
 
+// Helper: Menghasilkan String Base64 murni dari File input
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
